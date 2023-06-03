@@ -403,6 +403,12 @@ public class AwesomeNotifications
 
         DefaultsManager
                 .getInstance(currentContext)
+                .setDefaultIcon(
+                        currentContext,
+                        defaultIconPath);
+
+        DefaultsManager
+                .getInstance(currentContext)
                 .setDartCallbackDispatcher(
                         currentContext,
                         dartCallback);
