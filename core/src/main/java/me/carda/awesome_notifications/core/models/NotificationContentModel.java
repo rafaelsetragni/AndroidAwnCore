@@ -56,6 +56,7 @@ public class NotificationContentModel extends AbstractModel {
     public Boolean autoDismissible;
     public Boolean displayOnForeground;
     public Boolean displayOnBackground;
+    public Integer chronometer;
     public Integer color;
     public Integer backgroundColor;
     public Integer progress;
@@ -146,6 +147,7 @@ public class NotificationContentModel extends AbstractModel {
         badge                 = getValueOrDefault(arguments, Definitions.NOTIFICATION_BADGE, Integer.class, null);
         timeoutAfter          = getValueOrDefault(arguments, Definitions.NOTIFICATION_TIMEOUT_AFTER, Integer.class, null);
         groupKey              = getValueOrDefault(arguments, Definitions.NOTIFICATION_GROUP_KEY, String.class, null);
+        chronometer           = getValueOrDefault(arguments, Definitions.NOTIFICATION_CHRONOMETER, Integer.class, null);
         ticker                = getValueOrDefault(arguments, Definitions.NOTIFICATION_TICKER, String.class, null);
         roundedLargeIcon      = getValueOrDefault(arguments, Definitions.NOTIFICATION_ROUNDED_LARGE_ICON, Boolean.class, false);
         roundedBigPicture     = getValueOrDefault(arguments, Definitions.NOTIFICATION_ROUNDED_BIG_PICTURE, Boolean.class, false);
@@ -211,6 +213,7 @@ public class NotificationContentModel extends AbstractModel {
         putDataOnSerializedMap(Definitions.NOTIFICATION_TIMEOUT_AFTER, returnedObject, this.timeoutAfter);
         putDataOnSerializedMap(Definitions.NOTIFICATION_GROUP_KEY, returnedObject, this.groupKey);
         putDataOnSerializedMap(Definitions.NOTIFICATION_PRIVACY, returnedObject, this.privacy);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_CHRONOMETER, returnedObject, this.chronometer);
         putDataOnSerializedMap(Definitions.NOTIFICATION_PRIVATE_MESSAGE, returnedObject, this.privateMessage);
         putDataOnSerializedMap(Definitions.NOTIFICATION_ROUNDED_LARGE_ICON, returnedObject, this.roundedLargeIcon);
         putDataOnSerializedMap(Definitions.NOTIFICATION_ROUNDED_BIG_PICTURE, returnedObject, this.roundedBigPicture);

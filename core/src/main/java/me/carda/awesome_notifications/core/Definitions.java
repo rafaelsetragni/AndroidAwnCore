@@ -202,6 +202,7 @@ public interface Definitions {
     String NOTIFICATION_BUTTON_ICON = "icon";
     String NOTIFICATION_BUTTON_LABEL = "label";
     String NOTIFICATION_ACTION_TYPE = "actionType";
+    String NOTIFICATION_CHRONOMETER = "chronometer";
     String NOTIFICATION_REQUIRE_INPUT_TEXT = "requireInputText";
 
     String NOTIFICATION_PAYLOAD = "payload";

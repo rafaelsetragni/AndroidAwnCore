@@ -609,6 +609,7 @@ public class NotificationBuilder {
         setLockedNotification(notificationModel, channel, builder);
         setImportance(channel, builder);
         setCategory(notificationModel, builder);
+        setChronometer(notificationModel, builder);
         setTimeoutAfter(notificationModel, builder);
 
         setSound(context, notificationModel, channel, builder);
@@ -729,10 +730,22 @@ public class NotificationBuilder {
         builder.setOnlyAlertOnce(onlyAlertOnceValue);
     }
 
+    private void setChronometer(NotificationModel notificationModel, NotificationCompat.Builder builder) {
+        if (
+            notificationModel.content.chronometer == null ||
+            notificationModel.content.chronometer < 0 ||
+            !notificationModel.content.showWhen
+        ) {
+            return;
+        }
+        builder.setWhen(System.currentTimeMillis() - notificationModel.content.chronometer * 1000);
+        builder.setUsesChronometer(true);
+    }
+
     private void setTimeoutAfter(NotificationModel notificationModel, NotificationCompat.Builder builder) {
         if(notificationModel.content.timeoutAfter == null) return;
         if(notificationModel.content.timeoutAfter < 1) return;
-        builder.setTimeoutAfter(notificationModel.content.timeoutAfter);
+        builder.setTimeoutAfter(notificationModel.content.timeoutAfter * 1000);
     }
 
     private void setRemoteHistory(NotificationModel notificationModel, NotificationCompat.Builder builder) {
