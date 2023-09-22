@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'me.carda.awesome_notifications.core'
-version '0.7.5-dev.2'
+version '0.7.5'
 
 android {
     signingConfigs {
@@ -42,9 +42,9 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-android'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
 
-    implementation 'androidx.annotation:annotation:1.5.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.annotation:annotation:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.media:media:1.6.0'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 
