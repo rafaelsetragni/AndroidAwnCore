@@ -268,6 +268,9 @@ public interface Definitions {
     String NOTIFICATION_BUTTON_LABELS = "buttonLabels";
     String NOTIFICATION_ALLOW_WHILE_IDLE = "allowWhileIdle";
     String NOTIFICATION_BG_HANDLE_CLASS = "bgHandleClass";
+    String NOTIFICATION_DURATION = "duration";
+    String NOTIFICATION_PLAY_STATE = "playState";
+    String NOTIFICATION_PLAYBACK_SPEED = "playbackSpeed";
 
     Map<String, Object> initialValues = new HashMap<String, Object>(){{
         put(Definitions.NOTIFICATION_SCHEDULE_REPEATS, true);
