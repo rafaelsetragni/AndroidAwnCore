@@ -63,6 +63,9 @@ public class NotificationContentModel extends AbstractModel {
     public Integer badge;
     public Integer timeoutAfter;
     public String ticker;
+    public Integer duration;
+    public Integer playState;
+    public Float playbackSpeed;
 
     public Boolean roundedLargeIcon;
     public Boolean roundedBigPicture;
@@ -151,6 +154,9 @@ public class NotificationContentModel extends AbstractModel {
         ticker                = getValueOrDefault(arguments, Definitions.NOTIFICATION_TICKER, String.class, null);
         roundedLargeIcon      = getValueOrDefault(arguments, Definitions.NOTIFICATION_ROUNDED_LARGE_ICON, Boolean.class, false);
         roundedBigPicture     = getValueOrDefault(arguments, Definitions.NOTIFICATION_ROUNDED_BIG_PICTURE, Boolean.class, false);
+        duration              = getValueOrDefault(arguments, Definitions.NOTIFICATION_DURATION, Integer.class, null);
+        playState             = getValueOrDefault(arguments, Definitions.NOTIFICATION_PLAY_STATE, Integer.class, null);
+        playbackSpeed         = getValueOrDefault(arguments, Definitions.NOTIFICATION_PLAYBACK_SPEED, Float.class, null);
 
         messages = mapToMessages(getValueOrDefaultList(arguments, Definitions.NOTIFICATION_MESSAGES, null));
 
@@ -217,6 +223,9 @@ public class NotificationContentModel extends AbstractModel {
         putDataOnSerializedMap(Definitions.NOTIFICATION_PRIVATE_MESSAGE, returnedObject, this.privateMessage);
         putDataOnSerializedMap(Definitions.NOTIFICATION_ROUNDED_LARGE_ICON, returnedObject, this.roundedLargeIcon);
         putDataOnSerializedMap(Definitions.NOTIFICATION_ROUNDED_BIG_PICTURE, returnedObject, this.roundedBigPicture);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_DURATION, returnedObject, this.duration);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_PLAY_STATE, returnedObject, this.playState);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_PLAYBACK_SPEED, returnedObject, this.playbackSpeed);
 
         putDataOnSerializedMap(Definitions.NOTIFICATION_MESSAGES, returnedObject, this.messages);
 

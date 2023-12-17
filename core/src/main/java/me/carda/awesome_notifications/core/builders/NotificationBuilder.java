@@ -17,8 +17,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.Spanned;
 
 import androidx.annotation.NonNull;
@@ -602,7 +604,7 @@ public class NotificationBuilder {
         setGrouping(context, notificationModel, channel, builder);
         setVisibility(context, notificationModel, channel, builder);
         setShowWhen(notificationModel, builder);
-        setLayout(context, notificationModel, channel, builder);
+        setLayout(context, originalIntent, notificationModel, channel, builder);
         setAutoCancel(notificationModel, builder);
         setTicker(notificationModel, builder);
         setOnlyAlertOnce(notificationModel, channel, builder);
@@ -1141,6 +1143,7 @@ public class NotificationBuilder {
 
     private void setLayout(
             Context context,
+            Intent originalIntent,
             NotificationModel notificationModel,
             NotificationChannelModel channelModel,
             NotificationCompat.Builder builder
@@ -1168,7 +1171,7 @@ public class NotificationBuilder {
                 break;
 
             case MediaPlayer:
-                if (setMediaPlayerLayout(context, notificationModel.content, notificationModel.actionButtons, builder)) return;
+                if (setMediaPlayerLayout(context, notificationModel, builder, originalIntent, channelModel)) return;
                 break;
 
             case ProgressBar:
@@ -1390,7 +1393,9 @@ public class NotificationBuilder {
         return true;
     }
 
-    private Boolean setMediaPlayerLayout(Context context, NotificationContentModel contentModel, List<NotificationButtonModel> actionButtons, NotificationCompat.Builder builder) throws AwesomeNotificationsException {
+    private Boolean setMediaPlayerLayout(Context context, NotificationModel notificationModel, NotificationCompat.Builder builder, Intent originalIntent, NotificationChannelModel channel) throws AwesomeNotificationsException {
+        NotificationContentModel contentModel = notificationModel.content;
+        List<NotificationButtonModel> actionButtons = notificationModel.actionButtons;
 
         ArrayList<Integer> indexes = new ArrayList<>();
         for (int i = 0; i < actionButtons.size(); i++) {
@@ -1414,9 +1419,9 @@ public class NotificationBuilder {
          * https://developer.android.com/guide/topics/media/media-controls
          * https://github.com/rafaelsetragni/awesome_notifications/pull/364
          */
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /*Android 11*/){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q /* Android 10 */) {
 
-            if(mediaSession == null)
+            if (mediaSession == null)
                 throw ExceptionFactory
                         .getInstance()
                         .createNewAwesomeException(
@@ -1429,7 +1434,91 @@ public class NotificationBuilder {
                     new MediaMetadataCompat.Builder()
                             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, contentModel.title)
                             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, contentModel.body)
+                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, contentModel.duration)
                             .build());
+
+            // using PlaybackState to update position
+            PlaybackStateCompat.Builder playbackStateBuilder = new PlaybackStateCompat.Builder()
+                    .setState(
+                            contentModel.playState,
+                            (long) (((long) contentModel.progress * contentModel.duration) / 100f),
+                            contentModel.playbackSpeed,
+                            SystemClock.elapsedRealtime()
+                    );
+
+            /*
+             * add action buttons in Android versions >= 11
+             * https://developer.android.com/media/implement/surfaces/mobile#adding-custom-actions
+             */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /* Android 11 */) {
+                for (int i = 0; i < actionButtons.size(); i++) {
+                    NotificationButtonModel b = actionButtons.get(i);
+                    int iconResource = 0;
+                    if (!stringUtils.isNullOrEmpty(b.icon)) {
+                        iconResource = bitmapUtils.getDrawableResourceId(context, b.icon);
+                    }
+                    PlaybackStateCompat.CustomAction.Builder actionBuilder = new PlaybackStateCompat.CustomAction.Builder(
+                            b.key, // action ID
+                            b.label, // title - used as content description for the button
+                            iconResource // icon
+                    );
+                    // put button properties into extras
+                    Bundle extras = new Bundle();
+                    extras.putBoolean("enabled", b.enabled);
+                    extras.putBoolean("autoDismissible", b.autoDismissible);
+                    extras.putBoolean("showInCompactView", b.showInCompactView);
+                    extras.putString("actionType", b.actionType.getSafeName());
+                    actionBuilder.setExtras(extras);
+                    playbackStateBuilder.addCustomAction(actionBuilder.build());
+                }
+                // add callback for custom action
+                MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
+                    @Override
+                    public void onCustomAction(String action, Bundle extras) {
+                        super.onCustomAction(action, extras);
+                        boolean enabled = extras.getBoolean("enabled");
+                        boolean autoDismissible = extras.getBoolean("autoDismissible");
+                        boolean showInCompactView = extras.getBoolean("showInCompactView");
+                        ActionType actionType = ActionType.getSafeEnum(extras.getString("actionType"));
+                        Intent actionIntent = buildNotificationIntentFromNotificationModel(
+                                context,
+                                originalIntent,
+                                Definitions.NOTIFICATION_BUTTON_ACTION_PREFIX + "_" + action,
+                                notificationModel,
+                                channel,
+                                actionType,
+                                actionType == ActionType.Default ?
+                                        getMainTargetClass(context):
+                                        AwesomeNotifications.actionReceiverClass
+                        );
+
+                        if (actionType == ActionType.Default)
+                            actionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                        actionIntent.putExtra(Definitions.NOTIFICATION_AUTO_DISMISSIBLE, autoDismissible);
+                        actionIntent.putExtra(Definitions.NOTIFICATION_SHOW_IN_COMPACT_VIEW, showInCompactView);
+                        actionIntent.putExtra(Definitions.NOTIFICATION_ENABLED, enabled);
+                        actionIntent.putExtra(Definitions.NOTIFICATION_BUTTON_KEY, action); // we use button's key as action, so action is the key
+                        actionIntent.putExtra(
+                                Definitions.NOTIFICATION_ACTION_TYPE,
+                                actionType == null
+                                        ? ActionType.Default.getSafeName()
+                                        : actionType.getSafeName());
+
+                        if (actionType != null && enabled) {
+                            if (actionType == ActionType.Default) {
+                                context.startActivity(actionIntent);
+                            } else {
+                                context.sendBroadcast(actionIntent);
+
+                            }
+                        }
+                    }
+                };
+                mediaSession.setCallback(callback);
+            }
+
+            mediaSession.setPlaybackState(playbackStateBuilder.build());
         }
 
         builder.setStyle(
