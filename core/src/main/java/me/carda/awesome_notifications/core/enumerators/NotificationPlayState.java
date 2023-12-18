@@ -34,8 +34,8 @@ public enum NotificationPlayState implements SafeEnum {
                     return state;
                 }
             }
-        } else if (value instanceof Integer) {
-            final int intValue = (Integer) value;
+        } else if (value instanceof Number) {
+            final int intValue = ((Number) value).intValue();
             for (NotificationPlayState state : values()) {
                 if (state.rawValue == intValue) {
                     return state;
