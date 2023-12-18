@@ -1440,7 +1440,7 @@ public class NotificationBuilder {
             // using PlaybackState to update position
             PlaybackStateCompat.Builder playbackStateBuilder = new PlaybackStateCompat.Builder()
                     .setState(
-                            contentModel.playState,
+                            contentModel.playState.rawValue,
                             (long) (((long) contentModel.progress * contentModel.duration) / 100f),
                             contentModel.playbackSpeed,
                             SystemClock.elapsedRealtime()
