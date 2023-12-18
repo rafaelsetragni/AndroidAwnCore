@@ -17,6 +17,7 @@ import me.carda.awesome_notifications.core.enumerators.MediaSource;
 import me.carda.awesome_notifications.core.enumerators.NotificationCategory;
 import me.carda.awesome_notifications.core.enumerators.NotificationLayout;
 import me.carda.awesome_notifications.core.enumerators.NotificationLifeCycle;
+import me.carda.awesome_notifications.core.enumerators.NotificationPlayState;
 import me.carda.awesome_notifications.core.enumerators.NotificationPrivacy;
 import me.carda.awesome_notifications.core.enumerators.NotificationSource;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
@@ -64,8 +65,8 @@ public class NotificationContentModel extends AbstractModel {
     public Integer timeoutAfter;
     public String ticker;
     public Integer duration;
-    public Integer playState;
     public Float playbackSpeed;
+    public NotificationPlayState playState;
 
     public Boolean roundedLargeIcon;
     public Boolean roundedBigPicture;
@@ -155,8 +156,8 @@ public class NotificationContentModel extends AbstractModel {
         roundedLargeIcon      = getValueOrDefault(arguments, Definitions.NOTIFICATION_ROUNDED_LARGE_ICON, Boolean.class, false);
         roundedBigPicture     = getValueOrDefault(arguments, Definitions.NOTIFICATION_ROUNDED_BIG_PICTURE, Boolean.class, false);
         duration              = getValueOrDefault(arguments, Definitions.NOTIFICATION_DURATION, Integer.class, null);
-        playState             = getValueOrDefault(arguments, Definitions.NOTIFICATION_PLAY_STATE, Integer.class, null);
         playbackSpeed         = getValueOrDefault(arguments, Definitions.NOTIFICATION_PLAYBACK_SPEED, Float.class, null);
+        playState             = NotificationPlayState.fromMap(arguments.get(Definitions.NOTIFICATION_PLAY_STATE));
 
         messages = mapToMessages(getValueOrDefaultList(arguments, Definitions.NOTIFICATION_MESSAGES, null));
 
