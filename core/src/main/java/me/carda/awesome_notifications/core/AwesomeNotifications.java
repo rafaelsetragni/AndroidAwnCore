@@ -91,10 +91,10 @@ public class AwesomeNotifications
         return packageName;
     }
 
-    private Long createdCallbackHandle;
-    private Long displayedCallbackHandle;
-    private Long actionCallbackHandle;
-    private Long dismissedCallbackHandle;
+    private Long createdCallbackHandle = 0L;
+    private Long displayedCallbackHandle = 0L;
+    private Long actionCallbackHandle = 0L;
+    private Long dismissedCallbackHandle = 0L;
 
     // ************************** CONSTRUCTOR ***********************************
 
@@ -209,8 +209,6 @@ public class AwesomeNotifications
         notifyNotificationEvent(eventName, notificationReceived);
     }
 
-    private NotificationLifeCycle lastLifeCycle;
-
     @Override
     public void onNewLifeCycleEvent(NotificationLifeCycle lifeCycle) {
 
@@ -225,36 +223,12 @@ public class AwesomeNotifications
                                 PermissionManager.REQUEST_CODE,
                                 null,
                                 null);
-
-                if (lastLifeCycle != NotificationLifeCycle.Terminated) {
-                    break;
-                }
-                try {
-                    LostEventsManager
-                            .getInstance()
-                            .recoverLostNotificationEvents(
-                                    wContext.get(),
-                                    createdCallbackHandle > 0L,
-                                    displayedCallbackHandle > 0L,
-                                    actionCallbackHandle > 0L,
-                                    dismissedCallbackHandle > 0L
-                            );
-                } catch (AwesomeNotificationsException e) {
-                    ExceptionFactory
-                            .getInstance()
-                            .registerNewAwesomeException(
-                                    TAG,
-                                    ExceptionCode.CODE_BACKGROUND_EXECUTION_EXCEPTION,
-                                    "Was not possible to recover lost notification events",
-                                    ExceptionCode.DETAILED_UNEXPECTED_ERROR + ".onNewLifeCycleEvent");
-                }
                 break;
 
             case Background:
             case Terminated:
                 break;
         }
-        lastLifeCycle = lifeCycle;
     }
 
     // ********************************************************
@@ -359,17 +333,15 @@ public class AwesomeNotifications
         defaultsManager.setDismissedCallbackDispatcher(context, dismissedCallbackHandle);
         defaultsManager.commitChanges(context);
 
-        if(actionCallbackHandle > 0L) {
-            LostEventsManager
-                .getInstance()
-                .recoverLostNotificationEvents(
-                    context,
-                    createdCallbackHandle > 0L,
-                    displayedCallbackHandle > 0L,
-                    true,
-                    dismissedCallbackHandle > 0L
-                );
-        }
+        LostEventsManager
+            .getInstance()
+            .recoverLostNotificationEvents(
+                context,
+                createdCallbackHandle != 0L,
+                displayedCallbackHandle != 0L,
+                actionCallbackHandle != 0L,
+                dismissedCallbackHandle != 0L
+            );
     }
 
     public Long getActionHandle() throws AwesomeNotificationsException {
