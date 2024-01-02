@@ -13,7 +13,7 @@ public abstract class BackgroundExecutor {
     private static BackgroundExecutor runningInstance;
 
     protected Long dartCallbackHandle = 0L;
-    protected Long silentCallbackHandle = 0L;
+    protected Long actionCallbackHandle = 0L;
 
     private static Class<? extends BackgroundExecutor> awesomeBackgroundExecutorClass;
 
@@ -31,7 +31,7 @@ public abstract class BackgroundExecutor {
         Context context,
         Intent silentIntent,
         Long dartCallbackHandle,
-        Long silentCallbackHandle
+        Long actionCallbackHandle
     ) throws AwesomeNotificationsException {
 
         try {
@@ -50,7 +50,7 @@ public abstract class BackgroundExecutor {
                         awesomeBackgroundExecutorClass.newInstance();
 
                 runningInstance.dartCallbackHandle = dartCallbackHandle;
-                runningInstance.silentCallbackHandle = silentCallbackHandle;
+                runningInstance.actionCallbackHandle = actionCallbackHandle;
             }
 
             if(!runningInstance.runBackgroundAction(
