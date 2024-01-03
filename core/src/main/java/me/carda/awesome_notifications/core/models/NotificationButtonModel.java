@@ -21,9 +21,10 @@ public class NotificationButtonModel extends AbstractModel {
     public Integer color;
     public Boolean enabled;
     public Boolean requireInputText = false;
-    public Boolean autoDismissible;
-    public Boolean showInCompactView;
-    public Boolean isDangerousOption;
+    public Boolean isAuthenticationRequired = false;
+    public Boolean autoDismissible = true;
+    public Boolean showInCompactView = false;
+    public Boolean isDangerousOption = false;
     public ActionType actionType;
 
     @Override
@@ -41,6 +42,7 @@ public class NotificationButtonModel extends AbstractModel {
         isDangerousOption = getValueOrDefault(arguments, Definitions.NOTIFICATION_IS_DANGEROUS_OPTION, Boolean.class, false);
         autoDismissible   = getValueOrDefault(arguments, Definitions.NOTIFICATION_AUTO_DISMISSIBLE, Boolean.class, true);
         showInCompactView = getValueOrDefault(arguments, Definitions.NOTIFICATION_SHOW_IN_COMPACT_VIEW, Boolean.class, false);
+        isAuthenticationRequired = getValueOrDefault(arguments, Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, Boolean.class, false);
 
         return this;
     }
@@ -85,6 +87,7 @@ public class NotificationButtonModel extends AbstractModel {
         putDataOnSerializedMap(Definitions.NOTIFICATION_AUTO_DISMISSIBLE, dataMap, autoDismissible);
         putDataOnSerializedMap(Definitions.NOTIFICATION_SHOW_IN_COMPACT_VIEW, dataMap, showInCompactView);
         putDataOnSerializedMap(Definitions.NOTIFICATION_IS_DANGEROUS_OPTION, dataMap, isDangerousOption);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, dataMap, isAuthenticationRequired);
 
         return dataMap;
     }

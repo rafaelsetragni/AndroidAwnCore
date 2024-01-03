@@ -209,6 +209,7 @@ public interface Definitions {
     String NOTIFICATION_ACTION_TYPE = "actionType";
     String NOTIFICATION_CHRONOMETER = "chronometer";
     String NOTIFICATION_REQUIRE_INPUT_TEXT = "requireInputText";
+    String NOTIFICATION_AUTHENTICATION_REQUIRED = "isAuthenticationRequired";
 
     String NOTIFICATION_PAYLOAD = "payload";
     String NOTIFICATION_INITIAL_FIXED_DATE = "fixedDate";

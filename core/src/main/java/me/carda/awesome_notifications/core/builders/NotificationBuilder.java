@@ -11,6 +11,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -56,6 +58,7 @@ import me.carda.awesome_notifications.core.enumerators.NotificationPrivacy;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
 import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
 import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
+import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.managers.BadgeManager;
 import me.carda.awesome_notifications.core.managers.ChannelManager;
 import me.carda.awesome_notifications.core.managers.DefaultsManager;
@@ -261,6 +264,7 @@ public class NotificationBuilder {
 
         String jsonData = actionReceived.toJson();
         extras.putString(Definitions.NOTIFICATION_ACTION_JSON, jsonData);
+        extras.putBoolean(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, actionReceived.isAuthenticationRequired);
         intent.putExtras(extras);
 
         return intent;
@@ -341,6 +345,7 @@ public class NotificationBuilder {
         extras.putString(Definitions.NOTIFICATION_CHANNEL_KEY, stringUtils.digestString(notificationModel.content.channelKey));
         extras.putString(Definitions.NOTIFICATION_GROUP_KEY, stringUtils.digestString(groupKey));
         extras.putBoolean(Definitions.NOTIFICATION_AUTO_DISMISSIBLE, notificationModel.content.autoDismissible);
+        extras.putBoolean(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, false);
         extras.putString(Definitions.NOTIFICATION_ACTION_TYPE,
                 notificationModel.content.actionType != null ?
                     notificationModel.content.actionType.toString() : ActionType.Default.toString());
@@ -434,7 +439,11 @@ public class NotificationBuilder {
             String notificationActionJson = intent.getStringExtra(Definitions.NOTIFICATION_ACTION_JSON);
             if(!stringUtils.isNullOrEmpty(notificationActionJson)){
                 ActionReceived actionModel = new ActionReceived().fromJson(notificationActionJson);
-                if (actionModel != null) return actionModel;
+                if (actionModel != null) {
+                    actionModel.isAuthenticationRequired = intent
+                            .getBooleanExtra(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, false);
+                    return actionModel;
+                }
             }
 
             String notificationJson = intent.getStringExtra(Definitions.NOTIFICATION_JSON);
@@ -453,6 +462,7 @@ public class NotificationBuilder {
                 actionModel.registerDisplayedEvent(lifeCycle);
 
             actionModel.autoDismissible = intent.getBooleanExtra(Definitions.NOTIFICATION_AUTO_DISMISSIBLE, true);
+            actionModel.isAuthenticationRequired = intent.getBooleanExtra(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, false);
             actionModel.shouldAutoDismiss = actionModel.autoDismissible;
 
             actionModel.actionType =
@@ -1065,6 +1075,7 @@ public class NotificationBuilder {
                     actionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             actionIntent.putExtra(Definitions.NOTIFICATION_AUTO_DISMISSIBLE, buttonProperties.autoDismissible);
+            actionIntent.putExtra(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, buttonProperties.isAuthenticationRequired);
             actionIntent.putExtra(Definitions.NOTIFICATION_SHOW_IN_COMPACT_VIEW, buttonProperties.showInCompactView);
             actionIntent.putExtra(Definitions.NOTIFICATION_ENABLED, buttonProperties.enabled);
             actionIntent.putExtra(Definitions.NOTIFICATION_BUTTON_KEY, buttonProperties.key);
@@ -1111,6 +1122,10 @@ public class NotificationBuilder {
                         HtmlCompat.FROM_HTML_MODE_LEGACY
                 );
 
+            boolean isAuthenticationRequired =
+                    buttonProperties.isAuthenticationRequired != null &&
+                            buttonProperties.isAuthenticationRequired;
+
             if ( buttonProperties.requireInputText != null && buttonProperties.requireInputText ){
 
                 RemoteInput remoteInput =
@@ -1125,6 +1140,7 @@ public class NotificationBuilder {
                             iconResource,
                             htmlLabel,
                             actionPendingIntent)
+                        .setAuthenticationRequired(isAuthenticationRequired)
                         .addRemoteInput(remoteInput)
                         .build();
 
@@ -1132,10 +1148,17 @@ public class NotificationBuilder {
 
             } else {
 
-                builder.addAction(
-                    iconResource,
-                    htmlLabel,
-                    actionPendingIntent);
+                NotificationCompat.Action normalAction =
+                    new NotificationCompat.Action
+                        .Builder(
+                                iconResource,
+                                htmlLabel,
+                                actionPendingIntent
+                        )
+                        .setAuthenticationRequired(isAuthenticationRequired)
+                        .build();
+
+                builder.addAction(normalAction);
             }
         }
     }
@@ -1546,10 +1569,10 @@ public class NotificationBuilder {
                     );
                     // put button properties into extras
                     Bundle extras = new Bundle();
-                    extras.putBoolean("enabled", b.enabled);
-                    extras.putBoolean("autoDismissible", b.autoDismissible);
-                    extras.putBoolean("showInCompactView", b.showInCompactView);
-                    extras.putString("actionType", b.actionType.getSafeName());
+                    extras.putBoolean(Definitions.NOTIFICATION_ENABLED, b.enabled);
+                    extras.putBoolean(Definitions.NOTIFICATION_AUTO_DISMISSIBLE, b.autoDismissible);
+                    extras.putBoolean(Definitions.NOTIFICATION_SHOW_IN_COMPACT_VIEW, b.showInCompactView);
+                    extras.putString(Definitions.NOTIFICATION_ACTION_TYPE, b.actionType.getSafeName());
                     actionBuilder.setExtras(extras);
                     playbackStateBuilder.addCustomAction(actionBuilder.build());
                 }
@@ -1558,10 +1581,11 @@ public class NotificationBuilder {
                     @Override
                     public void onCustomAction(String action, Bundle extras) {
                         super.onCustomAction(action, extras);
-                        boolean enabled = extras.getBoolean("enabled");
-                        boolean autoDismissible = extras.getBoolean("autoDismissible");
-                        boolean showInCompactView = extras.getBoolean("showInCompactView");
-                        ActionType actionType = ActionType.getSafeEnum(extras.getString("actionType"));
+                        boolean enabled = extras.getBoolean(Definitions.NOTIFICATION_ENABLED);
+                        boolean autoDismissible = extras.getBoolean(Definitions.NOTIFICATION_AUTO_DISMISSIBLE);
+                        boolean isAuthenticationRequired = extras.getBoolean(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED);
+                        boolean showInCompactView = extras.getBoolean(Definitions.NOTIFICATION_SHOW_IN_COMPACT_VIEW);
+                        ActionType actionType = ActionType.getSafeEnum(extras.getString(Definitions.NOTIFICATION_ACTION_TYPE));
                         Intent actionIntent = buildNotificationIntentFromNotificationModel(
                                 context,
                                 originalIntent,
@@ -1578,6 +1602,7 @@ public class NotificationBuilder {
                             actionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                         actionIntent.putExtra(Definitions.NOTIFICATION_AUTO_DISMISSIBLE, autoDismissible);
+                        actionIntent.putExtra(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, isAuthenticationRequired);
                         actionIntent.putExtra(Definitions.NOTIFICATION_SHOW_IN_COMPACT_VIEW, showInCompactView);
                         actionIntent.putExtra(Definitions.NOTIFICATION_ENABLED, enabled);
                         actionIntent.putExtra(Definitions.NOTIFICATION_BUTTON_KEY, action); // we use button's key as action, so action is the key
