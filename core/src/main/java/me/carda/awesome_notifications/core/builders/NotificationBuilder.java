@@ -795,13 +795,81 @@ public class NotificationBuilder {
             Context context,
             NotificationModel notificationModel
     ){
-        if (notificationModel.localizations == null) return;
-        if (notificationModel.localizations.isEmpty()) return;
-
         String languageCode =
                 LocalizationManager
-                    .getInstance()
-                    .getLocalization(context);
+                        .getInstance()
+                        .getLocalization(context);
+
+        Resources resources = getLocalizedResources(context, languageCode);
+
+        if (notificationModel.content != null) {
+            if (notificationModel.content.titleLocKey != null) {
+                String titleLocKey = notificationModel.content.titleLocKey;
+                try {
+                    String localizedTitle = resources.getString(
+                            context.getResources().getIdentifier(
+                                    titleLocKey,
+                                    "string",
+                                    context.getPackageName()
+                            )
+                    );
+
+                    if (!StringUtils.getInstance().isNullOrEmpty(localizedTitle)) {
+                        localizedTitle = localizedTitle.replaceAll("(?<!\\\\\\\\)%@", "%s");
+                        if (notificationModel.content.titleLocArgs != null) {
+                            for (String arg : notificationModel.content.titleLocArgs) {
+                                localizedTitle = String.format(localizedTitle, arg);
+                            }
+                        }
+                        notificationModel.content.title = localizedTitle;
+                    }
+                } catch (Exception e) {
+                    ExceptionFactory
+                            .getInstance()
+                            .registerNewAwesomeException(
+                                    TAG,
+                                    ExceptionCode.CODE_INVALID_ARGUMENTS,
+                                    "The key or args requested are invalid for title translation",
+                                    ExceptionCode.DETAILED_INVALID_ARGUMENTS,
+                                    e);
+                }
+            }
+
+            if (notificationModel.content.bodyLocKey != null) {
+                String bodyLocKey = notificationModel.content.bodyLocKey;
+                try {
+                    String localizedBody = resources.getString(
+                            context.getResources().getIdentifier(
+                                    bodyLocKey,
+                                    "string",
+                                    context.getPackageName()
+                            )
+                    );
+
+                    if (!StringUtils.getInstance().isNullOrEmpty(localizedBody)) {
+                        localizedBody = localizedBody.replaceAll("(?<!\\\\\\\\)%@", "%s");
+                        if (notificationModel.content.bodyLocArgs != null) {
+                            for (String arg : notificationModel.content.bodyLocArgs) {
+                                localizedBody = String.format(localizedBody, arg);
+                            }
+                        }
+                        notificationModel.content.body = localizedBody;
+                    }
+                } catch (Exception e) {
+                    ExceptionFactory
+                            .getInstance()
+                            .registerNewAwesomeException(
+                                    TAG,
+                                    ExceptionCode.CODE_INVALID_ARGUMENTS,
+                                    "The key or args requested are invalid for body translation",
+                                    ExceptionCode.DETAILED_INVALID_ARGUMENTS,
+                                    e);
+                }
+            }
+        }
+
+        if (notificationModel.localizations == null) return;
+        if (notificationModel.localizations.isEmpty()) return;
 
         String matchedTranslationCode = getMatchedLanguageCode(
                 notificationModel.localizations,
@@ -839,6 +907,20 @@ public class NotificationBuilder {
         }
     }
 
+    private Resources getLocalizedResources(Context context, String languageCode) {
+        String[] parts = languageCode.split("-");
+        String language = parts[0].toLowerCase();
+        String country = parts.length > 1 ? parts[1].toUpperCase() : "";
+
+        Locale locale = country.isEmpty() ? new Locale(language) : new Locale(language, country);
+
+        Configuration config = new Configuration(context.getResources().getConfiguration());
+        config.setLocale(locale);
+
+        Context localizedContext = context.createConfigurationContext(config);
+        return localizedContext.getResources();
+    }
+
     private String getMatchedLanguageCode(Map<String, NotificationLocalizationModel> localizations, String languageCode) {
         String lowercaseLanguageCode = languageCode.toLowerCase(Locale.ROOT);
         if (localizations.containsKey(lowercaseLanguageCode)) return lowercaseLanguageCode;
@@ -867,9 +949,9 @@ public class NotificationBuilder {
             }
         }
 
-        if (StringUtils.getInstance().isNullOrEmpty(exactWord)) return exactWord;
-        if (StringUtils.getInstance().isNullOrEmpty(keyStartedWith)) return keyStartedWith;
-        if (StringUtils.getInstance().isNullOrEmpty(codeStartedWith)) return codeStartedWith;
+        if (!StringUtils.getInstance().isNullOrEmpty(exactWord)) return exactWord;
+        if (!StringUtils.getInstance().isNullOrEmpty(keyStartedWith)) return keyStartedWith;
+        if (!StringUtils.getInstance().isNullOrEmpty(codeStartedWith)) return codeStartedWith;
 
         return null;
     }
