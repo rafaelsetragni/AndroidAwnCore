@@ -19,6 +19,7 @@ public class ActionReceived extends NotificationReceived {
     // The value autoDismiss must return as original. Because
     // of that, this variable is being used as temporary
     public boolean shouldAutoDismiss = true;
+    public Boolean isAuthenticationRequired = true;
 
     public NotificationLifeCycle actionLifeCycle;
     public NotificationLifeCycle dismissedLifeCycle;
@@ -29,7 +30,8 @@ public class ActionReceived extends NotificationReceived {
 
     public ActionReceived(NotificationContentModel contentModel, Intent originalIntent){
         super(contentModel, originalIntent);
-
+        this.isAuthenticationRequired = originalIntent
+                .getBooleanExtra(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, false);
         this.shouldAutoDismiss = this.autoDismissible;
     }
 
@@ -67,6 +69,7 @@ public class ActionReceived extends NotificationReceived {
         putDataOnSerializedMap(Definitions.NOTIFICATION_BUTTON_KEY_INPUT, dataMap, buttonKeyInput);
         putDataOnSerializedMap(Definitions.NOTIFICATION_ACTION_DATE, dataMap, actionDate);
         putDataOnSerializedMap(Definitions.NOTIFICATION_DISMISSED_DATE, dataMap, dismissedDate);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, dataMap, isAuthenticationRequired);
 
         return dataMap;
     }
@@ -81,6 +84,7 @@ public class ActionReceived extends NotificationReceived {
         dismissedDate      = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISMISSED_DATE, Calendar.class, null);
         actionLifeCycle    = getValueOrDefault(arguments, Definitions.NOTIFICATION_ACTION_LIFECYCLE, NotificationLifeCycle.class, null);
         dismissedLifeCycle = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISMISSED_LIFECYCLE, NotificationLifeCycle.class, null);
+        isAuthenticationRequired = getValueOrDefault(arguments, Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, Boolean.class, false);
 
         return this;
     }

@@ -655,17 +655,32 @@ public abstract class AbstractModel implements Cloneable {
             @Nullable List<T> defaultValue
     ) {
         Object value = map.get(reference);
-        if (value == null) {
-            return defaultValue;
+        if (value == null) return defaultValue;
+
+        if (value instanceof List) {
+            return (List<T>) value;
         }
 
-        Type listType = new TypeToken<List<T>>(){}.getType();
-        try {
-            List<T> list = gson.fromJson(gson.toJson(value), listType);
-            return list != null ? list : defaultValue;
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof String) {
+            String stringValue = (String) value;
+            if (stringValue.startsWith("[")) {
+                // Handling the case where the value is already a list
+                Type listType = new TypeToken<List<T>>(){}.getType();
+                try {
+                    List<T> list = gson.fromJson(stringValue, listType);
+                    return list != null ? list : defaultValue;
+                } catch (Exception e) {
+                    return defaultValue;
+                }
+            }
+            String[] items = stringValue.split(",");
+            List<T> resultList = new ArrayList<>();
+            for (String item : items) {
+                resultList.add((T) item.trim());
+            }
+            return resultList.isEmpty() ? defaultValue : resultList;
         }
+        return defaultValue;
     }
 
     public <T, K> Map<T, K> getValueOrDefaultMap(
