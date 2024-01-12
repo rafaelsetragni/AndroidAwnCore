@@ -7,7 +7,7 @@ public class AwesomeNotificationsException extends Exception {
     final String code;
     final String detailedCode;
 
-    AwesomeNotificationsException(
+    public AwesomeNotificationsException(
             @NonNull String code,
             @NonNull String message,
             @NonNull String detailedCode
