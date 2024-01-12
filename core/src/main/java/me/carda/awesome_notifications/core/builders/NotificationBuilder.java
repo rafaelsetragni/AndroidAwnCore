@@ -54,6 +54,7 @@ import me.carda.awesome_notifications.core.enumerators.NotificationImportance;
 import me.carda.awesome_notifications.core.enumerators.NotificationLayout;
 import me.carda.awesome_notifications.core.enumerators.NotificationLifeCycle;
 import me.carda.awesome_notifications.core.enumerators.NotificationPermission;
+import me.carda.awesome_notifications.core.enumerators.NotificationPlayState;
 import me.carda.awesome_notifications.core.enumerators.NotificationPrivacy;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
 import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
@@ -1498,14 +1499,23 @@ public class NotificationBuilder {
         return true;
     }
 
-    private Boolean setMediaPlayerLayout(Context context, NotificationModel notificationModel, NotificationCompat.Builder builder, Intent originalIntent, NotificationChannelModel channel) throws AwesomeNotificationsException {
+    private Boolean setMediaPlayerLayout(
+            Context context,
+            NotificationModel notificationModel,
+            NotificationCompat.Builder builder,
+            Intent originalIntent,
+            NotificationChannelModel channel
+    ) throws AwesomeNotificationsException {
         NotificationContentModel contentModel = notificationModel.content;
-        List<NotificationButtonModel> actionButtons = notificationModel.actionButtons;
+        if (contentModel == null) return false;
+
+        List<NotificationButtonModel> actionButtons = notificationModel.actionButtons == null
+                ? new ArrayList<>() : notificationModel.actionButtons;
 
         ArrayList<Integer> indexes = new ArrayList<>();
         for (int i = 0; i < actionButtons.size(); i++) {
             NotificationButtonModel b = actionButtons.get(i);
-            if (b.showInCompactView) indexes.add(i);
+            if (b.showInCompactView != null && b.showInCompactView) indexes.add(i);
         }
 
         if(!StatusBarManager
@@ -1535,18 +1545,28 @@ public class NotificationBuilder {
                                 "There is no valid media session available",
                                 ExceptionCode.DETAILED_INSUFFICIENT_REQUIREMENTS);
 
-            mediaSession.setMetadata(
-                    new MediaMetadataCompat.Builder()
-                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, contentModel.title)
-                            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, contentModel.body)
-                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, contentModel.duration)
-                            .build());
+            MediaMetadataCompat.Builder metadataBuilder = new MediaMetadataCompat.Builder();
+            if (contentModel.title != null) {
+                metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, contentModel.title);
+            }
+            if (contentModel.body != null) {
+                metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, contentModel.body);
+            }
+            if (contentModel.duration != null) {
+                metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, contentModel.duration * 1000);
+            }
+            mediaSession.setMetadata(metadataBuilder.build());
 
             // using PlaybackState to update position
+            if (contentModel.progress == null) contentModel.progress = 0f;
+            if (contentModel.playState == null) contentModel.playState = NotificationPlayState.playing;
+            if (contentModel.playbackSpeed == null) contentModel.playbackSpeed = 0f;
+            if (contentModel.duration == null) contentModel.duration = 0;
+
             PlaybackStateCompat.Builder playbackStateBuilder = new PlaybackStateCompat.Builder()
                     .setState(
                             contentModel.playState.rawValue,
-                            (long) (((long) contentModel.progress * contentModel.duration) / 100f),
+                            (long) (contentModel.progress * contentModel.duration * 10),
                             contentModel.playbackSpeed,
                             SystemClock.elapsedRealtime()
                     );
@@ -1637,7 +1657,7 @@ public class NotificationBuilder {
         if (!stringUtils.isNullOrEmpty(contentModel.summary))
             builder.setSubText(contentModel.summary);
 
-        if(contentModel.progress != null && IntegerUtils.isBetween(contentModel.progress, 0, 100))
+        if(contentModel.progress != null && IntegerUtils.isBetween(contentModel.progress.intValue(), 0, 100))
             builder.setProgress(
                 100,
                 Math.max(0, Math.min(100, IntegerUtils.extractInteger(contentModel.progress, 0))),
