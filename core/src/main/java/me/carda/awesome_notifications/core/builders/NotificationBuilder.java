@@ -1637,7 +1637,7 @@ public class NotificationBuilder {
         if (!stringUtils.isNullOrEmpty(contentModel.summary))
             builder.setSubText(contentModel.summary);
 
-        if(contentModel.progress != null && IntegerUtils.isBetween(contentModel.progress, 0, 100))
+        if(contentModel.progress != null && IntegerUtils.isBetween(contentModel.progress.intValue(), 0, 100))
             builder.setProgress(
                 100,
                 Math.max(0, Math.min(100, IntegerUtils.extractInteger(contentModel.progress, 0))),

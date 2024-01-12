@@ -60,7 +60,7 @@ public class NotificationContentModel extends AbstractModel {
     public Integer chronometer;
     public Integer color;
     public Integer backgroundColor;
-    public Integer progress;
+    public Float progress;
     public Integer badge;
     public Integer timeoutAfter;
     public String ticker;
@@ -152,7 +152,7 @@ public class NotificationContentModel extends AbstractModel {
         bigPicture            = getValueOrDefault(arguments, Definitions.NOTIFICATION_BIG_PICTURE, String.class, null);
         payload               = getValueOrDefaultMap(arguments, Definitions.NOTIFICATION_PAYLOAD, null);
         autoDismissible       = getValueOrDefault(arguments, Definitions.NOTIFICATION_AUTO_DISMISSIBLE, Boolean.class, true);
-        progress              = getValueOrDefault(arguments, Definitions.NOTIFICATION_PROGRESS, Integer.class, null);
+        progress              = getValueOrDefault(arguments, Definitions.NOTIFICATION_PROGRESS, Float.class, null);
         badge                 = getValueOrDefault(arguments, Definitions.NOTIFICATION_BADGE, Integer.class, null);
         timeoutAfter          = getValueOrDefault(arguments, Definitions.NOTIFICATION_TIMEOUT_AFTER, Integer.class, null);
         groupKey              = getValueOrDefault(arguments, Definitions.NOTIFICATION_GROUP_KEY, String.class, null);
