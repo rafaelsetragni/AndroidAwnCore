@@ -68,6 +68,11 @@ public class NotificationContentModel extends AbstractModel {
     public Float playbackSpeed;
     public NotificationPlayState playState;
 
+    public String titleLocKey;
+    public String bodyLocKey;
+    public List<String> titleLocArgs;
+    public List<String> bodyLocArgs;
+
     public Boolean roundedLargeIcon;
     public Boolean roundedBigPicture;
 
@@ -158,6 +163,11 @@ public class NotificationContentModel extends AbstractModel {
         duration              = getValueOrDefault(arguments, Definitions.NOTIFICATION_DURATION, Integer.class, null);
         playbackSpeed         = getValueOrDefault(arguments, Definitions.NOTIFICATION_PLAYBACK_SPEED, Float.class, null);
         playState             = NotificationPlayState.fromMap(arguments.get(Definitions.NOTIFICATION_PLAY_STATE));
+
+        titleLocKey           = getValueOrDefault(arguments, Definitions.NOTIFICATION_TITLE_LOC_KEY, String.class, null);
+        bodyLocKey            = getValueOrDefault(arguments, Definitions.NOTIFICATION_BODY_LOC_KEY, String.class, null);
+        titleLocArgs          = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_TITLE_LOC_ARGS, null);
+        bodyLocArgs           = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_BODY_LOC_ARGS, null);
 
         messages = mapToMessages(getValueOrDefaultList(arguments, Definitions.NOTIFICATION_MESSAGES, null));
 
@@ -297,10 +307,6 @@ public class NotificationContentModel extends AbstractModel {
                 validateRequiredImages(context);
             }
         }
-
-        validateBigPicture(context);
-        validateLargeIcon(context);
-
     }
 
     private void validateIcon(@NonNull Context context) throws AwesomeNotificationsException {
@@ -321,41 +327,13 @@ public class NotificationContentModel extends AbstractModel {
     }
 
     private void validateRequiredImages(@NonNull Context context) throws AwesomeNotificationsException {
-        if(stringUtils.isNullOrEmpty(largeIcon) && stringUtils.isNullOrEmpty(bigPicture))
-            throw ExceptionFactory
-                    .getInstance()
-                    .createNewAwesomeException(
-                            TAG,
-                            ExceptionCode.CODE_MISSING_ARGUMENTS,
-                            "bigPicture or largeIcon is required",
-                            ExceptionCode.DETAILED_REQUIRED_ARGUMENTS+".image.required");
+        validateBigPicture(context);
+        validateLargeIcon(context);
     }
 
     private void validateBigPicture(@NonNull Context context) throws AwesomeNotificationsException {
-        if(
-            !stringUtils.isNullOrEmpty(bigPicture) && 
-            !BitmapUtils.getInstance().isValidBitmap(context, bigPicture)
-        )
-            throw ExceptionFactory
-                    .getInstance()
-                    .createNewAwesomeException(
-                            TAG,
-                            ExceptionCode.CODE_INVALID_ARGUMENTS,
-                            "bigPicture is invalid",
-                            ExceptionCode.DETAILED_INVALID_ARGUMENTS+".invalid.bigPicture");
     }
 
     private void validateLargeIcon(Context context) throws AwesomeNotificationsException {
-        if(
-            !stringUtils.isNullOrEmpty(largeIcon) && 
-            !BitmapUtils.getInstance().isValidBitmap(context, largeIcon)
-        )
-            throw ExceptionFactory
-                    .getInstance()
-                    .createNewAwesomeException(
-                            TAG,
-                            ExceptionCode.CODE_INVALID_ARGUMENTS,
-                            "largeIcon is invalid",
-                            ExceptionCode.DETAILED_INVALID_ARGUMENTS+".invalid.largeIcon");
     }
 }

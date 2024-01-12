@@ -14,7 +14,7 @@ import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
 import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.managers.DefaultsManager;
 
-public abstract class AwesomeBackgroundService extends JobIntentService {
+public abstract class BackgroundService extends JobIntentService {
     private static final String TAG = "BackgroundService";
 
     public abstract void initializeExternalPlugins(Context context) throws Exception;
@@ -39,16 +39,16 @@ public abstract class AwesomeBackgroundService extends JobIntentService {
                 return;
             }
 
-            Long silentCallbackHandle = getSilentCallbackDispatcher(this);
-            if (silentCallbackHandle == 0L) {
+            Long actionCallbackHandle = getActionCallbackDispatcher(this);
+            if (actionCallbackHandle == 0L) {
                 ExceptionFactory
                         .getInstance()
                         .registerNewAwesomeException(
                                 TAG,
                                 ExceptionCode.CODE_BACKGROUND_EXECUTION_EXCEPTION,
-                                "A background message could not be handled in Dart" +
-                                " because there is no dart background handler registered.",
-                                ExceptionCode.DETAILED_INVALID_ARGUMENTS+".silentCallback");
+                                "An action background message could not be handled in Dart" +
+                                " because there is no silent dart background handler registered.",
+                                ExceptionCode.DETAILED_INVALID_ARGUMENTS+".actionCallback");
                 return;
             }
 
@@ -56,7 +56,7 @@ public abstract class AwesomeBackgroundService extends JobIntentService {
                     this,
                     intent,
                     dartCallbackHandle,
-                    silentCallbackHandle);
+                    actionCallbackHandle);
 
         } catch (AwesomeNotificationsException ignored) {
         } catch (Exception e) {
@@ -77,9 +77,9 @@ public abstract class AwesomeBackgroundService extends JobIntentService {
                 .getDartCallbackDispatcher(context);
     }
 
-    public static Long getSilentCallbackDispatcher(Context context) throws AwesomeNotificationsException {
+    public static Long getActionCallbackDispatcher(Context context) throws AwesomeNotificationsException {
         return DefaultsManager
                 .getInstance(context)
-                .getSilentCallbackDispatcher(context);
+                .getActionCallbackDispatcher(context);
     }
 }
