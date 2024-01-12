@@ -484,7 +484,7 @@ public abstract class AbstractModel implements Cloneable {
         if(value instanceof String)
             return (String) value;
 
-        return defaultValue;
+        return value.toString();
     }
 
     public Integer getValueOrDefault(
@@ -514,6 +514,13 @@ public abstract class AbstractModel implements Cloneable {
         if(value instanceof Number)
             return ((Number) value).floatValue();
 
+        if(value instanceof String)
+            try {
+                return Float.parseFloat((String) value);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+
         return defaultValue;
     }
 
@@ -528,6 +535,13 @@ public abstract class AbstractModel implements Cloneable {
 
         if(value instanceof Number)
             return ((Number) value).doubleValue();
+
+        if(value instanceof String)
+            try {
+                return Double.parseDouble((String) value);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
 
         return defaultValue;
     }
