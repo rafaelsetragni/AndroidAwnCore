@@ -26,6 +26,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.Spanned;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
@@ -1254,39 +1255,46 @@ public class NotificationBuilder {
             NotificationChannelModel channelModel,
             NotificationCompat.Builder builder
     ) throws AwesomeNotificationsException {
-        switch (notificationModel.content.notificationLayout) {
+        try {
+            switch (notificationModel.content.notificationLayout) {
 
-            case BigPicture:
-                if (setBigPictureLayout(context, notificationModel, builder)) return;
-                break;
+                case BigPicture:
+                    if (setBigPictureLayout(context, notificationModel, builder)) return;
+                    break;
 
-            case BigText:
-                if (setBigTextStyle(context, notificationModel.content, builder)) return;
-                break;
+                case BigText:
+                    if (setBigTextStyle(context, notificationModel.content, builder)) return;
+                    break;
 
-            case Inbox:
-                if (setInboxLayout(context, notificationModel.content, builder)) return;
-                break;
+                case Inbox:
+                    if (setInboxLayout(context, notificationModel.content, builder)) return;
+                    break;
 
-            case Messaging:
-                if (setMessagingLayout(context, false, notificationModel.content, channelModel, builder)) return;
-                break;
+                case Messaging:
+                    if (setMessagingLayout(context, false, notificationModel.content, channelModel, builder))
+                        return;
+                    break;
 
-            case MessagingGroup:
-                if(setMessagingLayout(context, true, notificationModel.content, channelModel, builder)) return;
-                break;
+                case MessagingGroup:
+                    if (setMessagingLayout(context, true, notificationModel.content, channelModel, builder))
+                        return;
+                    break;
 
-            case MediaPlayer:
-                if (setMediaPlayerLayout(context, notificationModel, builder, originalIntent, channelModel)) return;
-                break;
+                case MediaPlayer:
+                    if (setMediaPlayerLayout(context, notificationModel, builder, originalIntent, channelModel))
+                        return;
+                    break;
 
-            case ProgressBar:
-                setProgressLayout(notificationModel, builder);
-                break;
+                case ProgressBar:
+                    setProgressLayout(notificationModel, builder);
+                    break;
 
-            case Default:
-            default:
-                break;
+                case Default:
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.e(TAG, e.getMessage());
         }
     }
 
@@ -1414,6 +1422,9 @@ public class NotificationBuilder {
 
     @SuppressWarnings("unchecked")
     private Boolean setMessagingLayout(Context context, boolean isGrouping, NotificationContentModel contentModel, NotificationChannelModel channelModel, NotificationCompat.Builder builder) throws AwesomeNotificationsException {
+        @NonNull final String username = contentModel.title;
+        @Nullable final String groupName = contentModel.summary;
+        if (StringUtils.getInstance().isNullOrEmpty(username)) return false;
         String groupKey = getGroupKey(contentModel, channelModel);
 
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M /*Android 6*/) {
@@ -1425,14 +1436,14 @@ public class NotificationBuilder {
                 .getInstance(context)
                 .activeNotificationsGroup.get(groupKey);
 
-        if(groupIDs == null || groupIDs.size() == 0)
+        if(groupIDs == null || groupIDs.isEmpty())
             messagingQueue.remove(messageQueueKey);
         else
             firstNotificationId = Integer.parseInt(groupIDs.get(0));
 
         NotificationMessageModel currentMessage = new NotificationMessageModel(
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ?
-                        contentModel.title : contentModel.summary,
+                username,
+                groupName,
                 contentModel.body,
                 contentModel.largeIcon
         );
@@ -1451,13 +1462,13 @@ public class NotificationBuilder {
         contentModel.messages = messages;
 
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle(contentModel.summary);
+                new NotificationCompat.MessagingStyle(username);
 
         for(NotificationMessageModel message : contentModel.messages) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P /*Android 9*/) {
 
                 Person.Builder personBuilder =  new Person.Builder()
-                        .setName(message.title);
+                        .setName(username);
 
                 String personIcon = message.largeIcon != null? message.largeIcon :contentModel.largeIcon;
                 if(!stringUtils.isNullOrEmpty(personIcon)){
@@ -1482,19 +1493,13 @@ public class NotificationBuilder {
 
         if (
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.P /*Android 9*/ &&
-            !stringUtils.isNullOrEmpty(contentModel.summary)
+            contentModel.notificationLayout == NotificationLayout.MessagingGroup
         ){
-            messagingStyle.setConversationTitle(contentModel.summary);
+            messagingStyle.setConversationTitle(groupName);
             messagingStyle.setGroupConversation(isGrouping);
         }
 
         builder.setStyle((NotificationCompat.Style) messagingStyle);
-        /*}
-        else {
-            if(stringUtils.isNullOrEmpty(groupKey)){
-                builder.setGroup("Messaging."+groupKey);
-            }
-        }*/
 
         return true;
     }
