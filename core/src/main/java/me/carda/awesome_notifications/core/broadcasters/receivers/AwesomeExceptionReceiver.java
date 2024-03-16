@@ -42,7 +42,7 @@ public class AwesomeExceptionReceiver {
         exceptionListeners.add(listener);
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, listener.getClass().getSimpleName() + " subscribed to receive exception events");
+            Logger.getInstance().d(TAG, listener.getClass().getSimpleName() + " subscribed to receive exception events");
 
         return this;
     }
@@ -50,12 +50,12 @@ public class AwesomeExceptionReceiver {
         exceptionListeners.remove(listener);
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, listener.getClass().getSimpleName() + " unsubscribed from exception events");
+            Logger.getInstance().d(TAG, listener.getClass().getSimpleName() + " unsubscribed from exception events");
 
         return this;
     }
     public void notifyNewException(String className, Exception exception) {
-        Logger.e(className, exception.getLocalizedMessage());
+        Logger.getInstance().e(className, exception.getLocalizedMessage(), exception);
         if(exceptionListeners.isEmpty()){
             exception.printStackTrace();
             return;

@@ -19,10 +19,10 @@ public interface Definitions {
     String EXTRA_BROADCAST_FCM_TOKEN = "token";
     String EXTRA_ANDROID_MEDIA_BUTTON = "android.intent.action.MEDIA_BUTTON";
 
-    String MEDIA_VALID_NETWORK = "^((http|https):\\/\\/)(www\\.)?[a-zA-Z0-9@:%.\\-_\\\\+~#?&\\/\\/=]{2,2048}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%.\\-_\\\\+~#?&\\/=]*)$";
-    String MEDIA_VALID_FILE = "^file?:\\/\\/";
-    String MEDIA_VALID_ASSET = "^asset?:\\/\\/";
-    String MEDIA_VALID_RESOURCE = "^resource?:\\/\\/";
+    String MEDIA_VALID_NETWORK = "^https?:\\/\\/";
+    String MEDIA_VALID_FILE = "^files?:\\/\\/";
+    String MEDIA_VALID_ASSET = "^assets?:\\/\\/";
+    String MEDIA_VALID_RESOURCE = "^resources?:\\/\\/";
 
     String INITIALIZE_DEBUG_MODE = "debug";
     String INITIALIZE_STORE_INITIAL_ACTION = "storeInitialAction";
@@ -60,8 +60,11 @@ public interface Definitions {
     String NOTIFICATION_MODEL_SCHEDULE = "schedule";
     String NOTIFICATION_MODEL_BUTTONS = "actionButtons";
     String NOTIFICATION_MODEL_LOCALIZATIONS = "localizations";
+    String NOTIFICATION_MODEL_ENCRYPTED_CONTENT = "encryptedContent";
+    String NOTIFICATION_MODEL_DECRYPTED_CONTENT = "decryptedContent";
     String NOTIFICATION_SILENT_ACTION = "silentAction";
     String NOTIFICATION_RECEIVED_ACTION = "receivedAction";
+    String NOTIFICATION_MODEL_DECRYPT_CONFIG = "decryptConfig";
 
     String NOTIFICATION_SERVICE_START_MODE = "startMode";
     String NOTIFICATION_FOREGROUND_SERVICE_TYPE = "foregroundServiceType";
@@ -132,6 +135,41 @@ public interface Definitions {
 
     String CHANNEL_METHOD_START_FOREGROUND = "startForeground";
     String CHANNEL_METHOD_STOP_FOREGROUND = "stopForeground";
+
+    String CHANNEL_METHOD_GENERATE_SYMMETRIC_SECRET = "generateSymmetricSecret";
+    String CHANNEL_METHOD_GENERATE_ASYMMETRIC_KEYS = "generateAsymmetricKeys";
+    String CHANNEL_METHOD_REGISTER_SYMMETRIC_CONFIG = "registerSymmetricConfig";
+    String CHANNEL_METHOD_REGISTER_PRIVATE_KEY_CONFIG = "setPrivateKeyConfig";
+    String CHANNEL_METHOD_REGISTER_PUBLIC_KEY_CONFIG = "setPublicKeyConfig";
+    String CHANNEL_METHOD_REGISTER_PRIVATE_PEM = "setPrivateKeyPem";
+    String CHANNEL_METHOD_REGISTER_PUBLIC_PEM = "setPublicKeyPem";
+    String CHANNEL_METHOD_READ_SYMMETRIC_CONFIG = "getSymmetricConfig";
+    String CHANNEL_METHOD_READ_PRIVATE_KEY_CONFIG = "getPrivateKeyConfig";
+    String CHANNEL_METHOD_READ_PUBLIC_KEY_CONFIG = "getPublicKeyConfig";
+    String CHANNEL_METHOD_READ_PRIVATE_PEM = "getPrivateKeyPem";
+    String CHANNEL_METHOD_READ_PUBLIC_PEM = "getPublicKeyPem";
+    String CHANNEL_METHOD_REMOVE_SYMMETRIC_CONFIG = "removeSymmetricConfig";
+    String CHANNEL_METHOD_REMOVE_PRIVATE_KEY_CONFIG = "removePrivateKeyConfig";
+    String CHANNEL_METHOD_REMOVE_PUBLIC_KEY_CONFIG = "removePublicKeyConfig";
+    String CHANNEL_METHOD_REMOVE_PRIVATE_PEM = "removePrivateKeyPem";
+    String CHANNEL_METHOD_REMOVE_PUBLIC_PEM = "removePublicKeyPem";
+    String CHANNEL_METHOD_LIST_SYMMETRIC_CONFIGS = "listSymmetricConfigs";
+    String CHANNEL_METHOD_LIST_PRIVATE_KEY_CONFIGS = "listPrivateKeyConfigs";
+    String CHANNEL_METHOD_LIST_PUBLIC_KEY_CONFIGS = "listPublicKeyConfigs";
+    String CHANNEL_METHOD_LIST_PRIVATE_PEM = "listPrivateKeyPem";
+    String CHANNEL_METHOD_LIST_PUBLIC_PEM = "listPublicKeyPem";
+    String CHANNEL_METHOD_ENCRYPT_WITH_SYMMETRIC_REF = "encryptWithSymmetricRef";
+    String CHANNEL_METHOD_DECRYPT_WITH_SYMMETRIC_REF = "decryptWithSymmetricRef";
+    String CHANNEL_METHOD_ENCRYPT_WITH_ASYMMETRIC_REF = "encryptWithAsymmetricRef";
+    String CHANNEL_METHOD_DECRYPT_WITH_ASYMMETRIC_REF = "decryptWithAsymmetricRef";
+    String CHANNEL_METHOD_ENCRYPT_WITH_SYMMETRIC_SECRET = "encryptWithSymmetricSecret";
+    String CHANNEL_METHOD_DECRYPT_WITH_SYMMETRIC_SECRET = "decryptWithSymmetricSecret";
+    String CHANNEL_METHOD_ENCRYPT_WITH_ASYMMETRIC_CONFIG = "encryptWithAsymmetricKey";
+    String CHANNEL_METHOD_DECRYPT_WITH_ASYMMETRIC_CONFIG = "decryptWithAsymmetricKey";
+    String CHANNEL_METHOD_ENCRYPT_CONTENT = "encryptContent";
+    String CHANNEL_METHOD_DECRYPT_CONTENT = "decryptContent";
+    String CHANNEL_METHOD_ENCRYPT_CONTENT_WITH_CONFIGS = "encryptContentWithConfigs";
+    String CHANNEL_METHOD_DECRYPT_CONTENT_WITH_CONFIGS = "decryptContentWithConfigs";
 
     String CHANNEL_METHOD_LIST_ALL_SCHEDULES = "listAllSchedules";
     String CHANNEL_FORCE_UPDATE = "forceUpdate";
@@ -278,6 +316,32 @@ public interface Definitions {
     String NOTIFICATION_PLAY_STATE = "playState";
     String NOTIFICATION_PLAYBACK_SPEED = "playbackSpeed";
 
+    String NOTIFICATION_PRIVATE_KEY = "privateKey";
+    String NOTIFICATION_PUBLIC_KEY = "publicKey";
+    String NOTIFICATION_ENCRYPT_KEY_REF = "keyReference";
+    String NOTIFICATION_ENCRYPT_PEM_REF = "pemReference";
+    String NOTIFICATION_SECRET_REF = "secretReference";
+    String NOTIFICATION_SECRET = "secret";
+
+    String ENCRYPT_PRIVATE_KEY_CONFIG = "keyReference";
+    String ENCRYPT_PUBLIC_KEY_CONFIG = "keyReference";
+    String ENCRYPT_SYMMETRIC_CONFIG = "keyReference";
+    String ENCRYPT_PEM_CONTENT = "pemContent";
+    String ENCRYPT_KEY_REFERENCE = "keyReference";
+    String ENCRYPT_PEM_REFERENCE = "pemReference";
+    String ENCRYPT_PRIVATE_KEY_SIZE = "privateKeySize";
+
+    String ENCRYPT_SECRET_LENGTH = "secretLength";
+    String ENCRYPT_SALT_LENGTH = "saltLength";
+    String ENCRYPT_KEY_BYTES_COUNT = "keyBytesCount";
+    String ENCRYPT_DIGEST_ITERATIONS = "digestIterations";
+
+    String ENCRYPT_SYMMETRIC_ALGORITHM = "symmetricAlgorithm";
+    String ENCRYPT_ASYMMETRIC_ALGORITHM = "asymmetricAlgorithm";
+    String ENCRYPT_CONTENT = "encryptedContent";
+    String ENCRYPT_VALUE = "value";
+    String ENCRYPT_SEED = "seed";
+
     Map<String, Object> initialValues = new HashMap<String, Object>(){{
         put(Definitions.NOTIFICATION_SCHEDULE_REPEATS, true);
         put(Definitions.NOTIFICATION_ID, 0);
@@ -286,7 +350,6 @@ public interface Definitions {
         put(Definitions.NOTIFICATION_GROUP_SORT, GroupSort.Desc);
         put(Definitions.NOTIFICATION_GROUP_ALERT_BEHAVIOR, GroupAlertBehaviour.All);
         put(Definitions.NOTIFICATION_DEFAULT_PRIVACY, NotificationPrivacy.Private);
-        //put(Definitions.NOTIFICATION_PRIVACY, NotificationPrivacy.Private);
         put(Definitions.NOTIFICATION_CHANNEL_DESCRIPTION, "Notifications");
         put(Definitions.NOTIFICATION_CHANNEL_NAME, "Notifications");
         put(Definitions.NOTIFICATION_CHANNEL_SHOW_BADGE, false);

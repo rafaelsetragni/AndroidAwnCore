@@ -15,13 +15,10 @@ import me.carda.awesome_notifications.core.broadcasters.receivers.AwesomeEventsR
 import me.carda.awesome_notifications.core.builders.NotificationBuilder;
 import me.carda.awesome_notifications.core.enumerators.NotificationLifeCycle;
 import me.carda.awesome_notifications.core.managers.ActionManager;
-import me.carda.awesome_notifications.core.managers.CreatedManager;
-import me.carda.awesome_notifications.core.managers.DismissedManager;
-import me.carda.awesome_notifications.core.managers.DisplayedManager;
 import me.carda.awesome_notifications.core.managers.LifeCycleManager;
 import me.carda.awesome_notifications.core.managers.LostEventsManager;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
-import me.carda.awesome_notifications.core.models.returnedData.NotificationReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.NotificationReceived;
 
 public class BroadcastSender {
 

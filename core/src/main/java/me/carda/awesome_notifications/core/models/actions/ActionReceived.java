@@ -1,4 +1,4 @@
-package me.carda.awesome_notifications.core.models.returnedData;
+package me.carda.awesome_notifications.core.models.actions;
 
 import android.content.Intent;
 
@@ -82,8 +82,8 @@ public class ActionReceived extends NotificationReceived {
         buttonKeyInput     = getValueOrDefault(arguments, Definitions.NOTIFICATION_BUTTON_KEY_INPUT, String.class, null);
         actionDate         = getValueOrDefault(arguments, Definitions.NOTIFICATION_ACTION_DATE, Calendar.class, null);
         dismissedDate      = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISMISSED_DATE, Calendar.class, null);
-        actionLifeCycle    = getValueOrDefault(arguments, Definitions.NOTIFICATION_ACTION_LIFECYCLE, NotificationLifeCycle.class, null);
-        dismissedLifeCycle = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISMISSED_LIFECYCLE, NotificationLifeCycle.class, null);
+        actionLifeCycle    = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_ACTION_LIFECYCLE, NotificationLifeCycle.class, NotificationLifeCycle.values(), null);
+        dismissedLifeCycle = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_DISMISSED_LIFECYCLE, NotificationLifeCycle.class, NotificationLifeCycle.values(), null);
         isAuthenticationRequired = getValueOrDefault(arguments, Definitions.NOTIFICATION_AUTHENTICATION_REQUIRED, Boolean.class, false);
 
         return this;

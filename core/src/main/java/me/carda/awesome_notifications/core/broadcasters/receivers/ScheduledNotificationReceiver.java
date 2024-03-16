@@ -52,7 +52,7 @@ public abstract class ScheduledNotificationReceiver extends AwesomeBroadcastRece
                             notificationModel);
 
                     if(AwesomeNotifications.debug)
-                        Logger.d(TAG,
+                        Logger.getInstance().d(TAG,
                             "Schedule "+ notificationModel.content.id.toString() +
                                     " finished since repeat option is off");
                 }

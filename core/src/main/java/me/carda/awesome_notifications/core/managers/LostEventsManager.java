@@ -12,13 +12,11 @@ import java.util.TreeMap;
 
 import me.carda.awesome_notifications.core.AwesomeNotifications;
 import me.carda.awesome_notifications.core.broadcasters.senders.BroadcastSender;
-import me.carda.awesome_notifications.core.enumerators.NotificationLifeCycle;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
-import me.carda.awesome_notifications.core.listeners.AwesomeLifeCycleEventListener;
 import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.models.AbstractModel;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
-import me.carda.awesome_notifications.core.models.returnedData.NotificationReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.NotificationReceived;
 
 public class LostEventsManager {
     private static final String TAG = "LostEventsManager";
@@ -205,7 +203,7 @@ public class LostEventsManager {
 
             } catch (AwesomeNotificationsException e) {
                 if (AwesomeNotifications.debug)
-                    Logger.d(TAG, String.format("%s", e.getMessage()));
+                    Logger.getInstance().d(TAG, String.format("%s", e.getMessage()));
                 e.printStackTrace();
             }
 
@@ -245,7 +243,7 @@ public class LostEventsManager {
 
             } catch (AwesomeNotificationsException e) {
                 if (AwesomeNotifications.debug)
-                    Logger.d(TAG, String.format("%s", e.getMessage()));
+                    Logger.getInstance().d(TAG, String.format("%s", e.getMessage()));
                 e.printStackTrace();
             }
 
@@ -284,7 +282,7 @@ public class LostEventsManager {
 
             } catch (AwesomeNotificationsException e) {
                 if (AwesomeNotifications.debug)
-                    Logger.d(TAG, String.format("%s", e.getMessage()));
+                    Logger.getInstance().d(TAG, String.format("%s", e.getMessage()));
                 e.printStackTrace();
             }
 
@@ -326,7 +324,7 @@ public class LostEventsManager {
 
             } catch (AwesomeNotificationsException e) {
                 if (AwesomeNotifications.debug)
-                    Logger.d(TAG, String.format("%s", e.getMessage()));
+                    Logger.getInstance().d(TAG, String.format("%s", e.getMessage()));
                 e.printStackTrace();
             }
 

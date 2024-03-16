@@ -11,7 +11,7 @@ import me.carda.awesome_notifications.core.enumerators.NotificationLifeCycle;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
 import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.managers.StatusBarManager;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
 
 public abstract class DismissedNotificationReceiver extends AwesomeBroadcastReceiver
 {
@@ -41,7 +41,7 @@ public abstract class DismissedNotificationReceiver extends AwesomeBroadcastRece
 
             if(actionReceived == null) {
                 if(AwesomeNotifications.debug)
-                    Logger.i(TAG,
+                    Logger.getInstance().i(TAG,
                             "The action received do not contain any awesome " +
                             "notification data and was discarded");
                 return;

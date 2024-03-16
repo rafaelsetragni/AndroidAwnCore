@@ -746,7 +746,7 @@ public class PermissionManager {
             return;
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, "New permissions request found waiting for user response");
+            Logger.getInstance().d(TAG, "New permissions request found waiting for user response");
 
         int retries = 3;
         ActivityCompletionHandler completionHandler;

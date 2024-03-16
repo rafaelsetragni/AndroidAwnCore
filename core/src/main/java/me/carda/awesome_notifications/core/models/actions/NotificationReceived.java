@@ -1,4 +1,4 @@
-package me.carda.awesome_notifications.core.models.returnedData;
+package me.carda.awesome_notifications.core.models.actions;
 
 import android.content.Intent;
 
@@ -50,6 +50,11 @@ public class NotificationReceived extends NotificationContentModel {
         this.createdSource = contentModel.createdSource;
         this.createdLifeCycle = contentModel.createdLifeCycle;
         this.createdDate = contentModel.createdDate;
+
+        this.titleLocKey = contentModel.titleLocKey;
+        this.bodyLocKey = contentModel.bodyLocKey;
+        this.titleLocArgs = contentModel.titleLocArgs;
+        this.bodyLocArgs = contentModel.bodyLocArgs;
     }
 
     @Override
@@ -60,11 +65,6 @@ public class NotificationReceived extends NotificationContentModel {
     @Override
     public Map<String, Object> toMap(){
         return super.toMap();
-    }
-
-    @Override
-    public String toJson() {
-        return templateToJson();
     }
 
     @Override

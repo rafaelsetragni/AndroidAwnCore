@@ -44,6 +44,7 @@ public class NotificationCalendarModel extends NotificationScheduleModel {
 
     private String weekdayName;
 
+    @NonNull
     @Override
     @SuppressWarnings("unchecked")
     public NotificationCalendarModel fromMap(Map<String, Object> arguments) {

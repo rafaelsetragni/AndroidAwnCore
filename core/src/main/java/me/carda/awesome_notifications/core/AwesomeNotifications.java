@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.SecretKey;
+
 import me.carda.awesome_notifications.core.broadcasters.receivers.AwesomeEventsReceiver;
 import me.carda.awesome_notifications.core.broadcasters.receivers.DismissedNotificationReceiver;
 import me.carda.awesome_notifications.core.broadcasters.receivers.NotificationActionReceiver;
@@ -52,13 +54,25 @@ import me.carda.awesome_notifications.core.managers.PermissionManager;
 import me.carda.awesome_notifications.core.managers.ScheduleManager;
 import me.carda.awesome_notifications.core.managers.StatusBarManager;
 import me.carda.awesome_notifications.core.models.AbstractModel;
+import me.carda.awesome_notifications.core.models.keys.PrivateKeyPem;
+import me.carda.awesome_notifications.core.models.keys.PublicKeyPem;
+import me.carda.awesome_notifications.core.models.encrypted.NotificationDecryptedContentModel;
+import me.carda.awesome_notifications.core.models.encrypted.NotificationEncryptedContentModel;
+import me.carda.awesome_notifications.core.models.KeyPairModel;
 import me.carda.awesome_notifications.core.models.NotificationChannelGroupModel;
 import me.carda.awesome_notifications.core.models.NotificationChannelModel;
 import me.carda.awesome_notifications.core.models.NotificationModel;
 import me.carda.awesome_notifications.core.models.NotificationScheduleModel;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
-import me.carda.awesome_notifications.core.models.returnedData.NotificationReceived;
+import me.carda.awesome_notifications.core.models.keys.PrivateKeyConfig;
+import me.carda.awesome_notifications.core.models.keys.PublicKeyConfig;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.NotificationReceived;
+import me.carda.awesome_notifications.core.models.keys.SymmetricSecretConfig;
+import me.carda.awesome_notifications.core.services.encryption.EncryptionService;
 import me.carda.awesome_notifications.core.services.ForegroundService;
+import me.carda.awesome_notifications.core.services.encryption.PrivateKeyService;
+import me.carda.awesome_notifications.core.services.encryption.PublicKeyService;
+import me.carda.awesome_notifications.core.services.encryption.SymmetricSecretService;
 import me.carda.awesome_notifications.core.threads.NotificationScheduler;
 import me.carda.awesome_notifications.core.threads.NotificationSender;
 import me.carda.awesome_notifications.core.utils.CalendarUtils;
@@ -75,6 +89,7 @@ public class AwesomeNotifications
     private static final String TAG = "AwesomeNotifications";
 
     public static Boolean debug = false;
+    public static SecretKey secretDatabaseKey;
 
     private final WeakReference<Context> wContext;
     private final StringUtils stringUtils;
@@ -136,7 +151,7 @@ public class AwesomeNotifications
                 .subscribeOnActionEvents(this)
                 .subscribeOnNotificationEvents(this);
 
-        Logger.d(TAG, "Awesome notifications ("+this.hashCode()+") attached to activity");
+        Logger.getInstance().d(TAG, "Awesome notifications ("+this.hashCode()+") attached to activity");
     }
 
     public void detachAsMainInstance(AwesomeEventListener awesomeEventlistener){
@@ -153,7 +168,7 @@ public class AwesomeNotifications
                 .unsubscribeOnActionEvents(this);
 
 
-        Logger.d(TAG, "Awesome notifications ("+this.hashCode()+") detached from activity");
+        Logger.getInstance().d(TAG, "Awesome notifications ("+this.hashCode()+") detached from activity");
     }
 
     public void dispose(){
@@ -409,7 +424,7 @@ public class AwesomeNotifications
                 .refreshScheduledNotifications(currentContext);
 
         if (AwesomeNotifications.debug)
-            Logger.d(TAG, "Awesome Notifications initialized");
+            Logger.getInstance().d(TAG, "Awesome Notifications initialized");
     }
 
     private void setChannelGroups(
@@ -861,5 +876,361 @@ public class AwesomeNotifications
         return StatusBarManager
                 .getInstance(wContext.get())
                 .getAllActiveNotificationIdsOnStatusBar();
+    }
+
+    @NonNull
+    public String generateSymmetricBase64Secret(
+            @NonNull SymmetricSecretConfig symmetricSecretConfig
+    ) throws AwesomeNotificationsException {
+        return SymmetricSecretService
+                .getInstance()
+                .generateSymmetricBase64Secret(symmetricSecretConfig);
+    }
+
+    @NonNull
+    public KeyPairModel generateAsymmetricKeyPair(
+            @NonNull PrivateKeyConfig privateKeyConfig,
+            @Nullable String seed
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .generateAsymmetricKeyPair(
+                        privateKeyConfig,
+                        seed
+                );
+    }
+
+    @Nullable
+    public String encryptTextWithSymmetricRef(
+            @NonNull String publicKeyReference,
+            @NonNull String base64Secret,
+            @NonNull String textToEncrypt
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .encryptTextWithSymmetricRef(
+                        publicKeyReference,
+                        base64Secret,
+                        textToEncrypt
+                );
+    }
+
+    @Nullable
+    public String encryptTextWithSymmetricConfig(
+            @NonNull SymmetricSecretConfig secretConfig,
+            @NonNull String base64Secret,
+            @NonNull String textToEncrypt
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .encryptTextWithSymmetricConfig(
+                        secretConfig,
+                        base64Secret,
+                        textToEncrypt
+                );
+    }
+
+    @Nullable
+    public String decryptTextWithSymmetricRef(
+            @NonNull String privateKeyReference,
+            @NonNull String base64Secret,
+            @NonNull String encryptedText
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .decryptTextWithSymmetricRef(
+                        privateKeyReference,
+                        base64Secret,
+                        encryptedText
+                );
+    }
+
+    @Nullable
+    public String decryptTextWithSymmetricConfig(
+            @NonNull SymmetricSecretConfig secretConfig,
+            @NonNull String base64Secret,
+            @NonNull String encryptedText
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .decryptTextWithSymmetricConfig(
+                        secretConfig,
+                        base64Secret,
+                        encryptedText
+                );
+    }
+
+    @Nullable
+    public String encryptTextWithAsymmetricRef(
+            @NonNull String publicKeyReference,
+            @NonNull String publicPemReference,
+            @NonNull String textToEncrypt
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .encryptTextWithAsymmetricRef(
+                        publicKeyReference,
+                        publicPemReference,
+                        textToEncrypt
+                );
+    }
+
+    @Nullable
+    public String encryptTextWithAsymmetricConfig(
+            @NonNull PublicKeyConfig publicKeyModel,
+            @NonNull PublicKeyPem publicKeyPem,
+            @NonNull String textToEncrypt
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .encryptTextWithAsymmetricKey(
+                        publicKeyModel,
+                        publicKeyPem,
+                        textToEncrypt
+                );
+    }
+
+    @Nullable
+    public String decryptTextWithAsymmetricRef(
+            @NonNull String privateKeyReference,
+            @NonNull String publicPemReference,
+            @NonNull String encryptedText
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .encryptTextWithAsymmetricRef(
+                        privateKeyReference,
+                        publicPemReference,
+                        encryptedText
+                );
+    }
+
+    @Nullable
+    public String decryptTextWithAsymmetricConfig(
+            @NonNull PrivateKeyConfig privateKeyConfig,
+            @NonNull PrivateKeyPem privateKeyPem,
+            @NonNull String encryptedText
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .decryptTextWithAsymmetricKey(
+                        privateKeyConfig,
+                        privateKeyPem,
+                        encryptedText
+                );
+    }
+
+    @NonNull
+    public boolean registerSymmetricSecretConfig(
+            @NonNull SymmetricSecretConfig configModel
+    ) throws AwesomeNotificationsException {
+        return SymmetricSecretService
+                .getInstance()
+                .registerSymmetricSecretConfig(configModel);
+    }
+
+    @NonNull
+    public boolean registerPrivateKeyConfig(
+            @NonNull PrivateKeyConfig configModel
+    ) throws AwesomeNotificationsException {
+        return PrivateKeyService
+                .getInstance()
+                .registerPrivateKeyConfig(configModel);
+    }
+
+    @NonNull
+    public boolean registerPublicKeyConfig(
+            @NonNull PublicKeyConfig configModel
+    ) throws AwesomeNotificationsException {
+        return PublicKeyService
+                .getInstance()
+                .registerPublicKeyConfig(configModel);
+    }
+
+    @NonNull
+    public boolean registerPrivatePemConfig(
+            @NonNull PrivateKeyPem keyPem
+    ) throws AwesomeNotificationsException {
+        return PrivateKeyService
+                .getInstance()
+                .registerPrivateKeyPem(keyPem);
+    }
+
+    @NonNull
+    public boolean registerPublicPemConfig(
+            @NonNull PublicKeyPem keyPem
+    ) throws AwesomeNotificationsException {
+        return PublicKeyService
+                .getInstance()
+                .registerPublicKeyPem(keyPem);
+    }
+
+    @Nullable
+    public SymmetricSecretConfig readSymmetricSecretConfig(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return SymmetricSecretService
+                .getInstance()
+                .readSymmetricSecretConfig(configReference);
+    }
+
+    @Nullable
+    public PrivateKeyConfig readPrivateKeyConfig(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PrivateKeyService
+                .getInstance()
+                .readPrivateKeyConfig(configReference);
+    }
+
+    @Nullable
+    public PublicKeyConfig readPublicKeyConfig(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PublicKeyService
+                .getInstance()
+                .readPublicKeyConfig(configReference);
+    }
+
+    @Nullable
+    public PrivateKeyPem readPrivateKeyPem(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PrivateKeyService
+                .getInstance()
+                .readPrivateKeyPem(configReference);
+    }
+
+    @Nullable
+    public PublicKeyPem readPublicKeyPem(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PublicKeyService
+                .getInstance()
+                .readPublicKeyPem(configReference);
+    }
+
+    public boolean removeSymmetricSecretConfig(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return SymmetricSecretService
+                .getInstance()
+                .removeSymmetricSecretConfig(configReference);
+    }
+
+    public boolean removePrivateKeyConfig(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PrivateKeyService
+                .getInstance()
+                .removePrivateKeyConfig(configReference);
+    }
+
+    public boolean removePublicKeyConfig(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PublicKeyService
+                .getInstance()
+                .removePublicKeyConfig(configReference);
+    }
+
+    public boolean removePrivateKeyPem(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PrivateKeyService
+                .getInstance()
+                .removePrivateKeyPem(configReference);
+    }
+
+    public boolean removePublicKeyPem(
+            @NonNull String configReference
+    ) throws AwesomeNotificationsException {
+        return PublicKeyService
+                .getInstance()
+                .removePublicKeyPem(configReference);
+    }
+
+    @NonNull
+    public List<SymmetricSecretConfig> listAllSymmetricSecretConfigs(
+    ) throws AwesomeNotificationsException {
+        return SymmetricSecretService
+                .getInstance()
+                .listAllSymmetricSecretConfigs();
+    }
+
+    @NonNull
+    public List<PrivateKeyConfig> listAllPrivateKeyConfigs(
+    ) throws AwesomeNotificationsException {
+        return PrivateKeyService
+                .getInstance()
+                .listAllPrivateKeyConfigs();
+    }
+
+    @NonNull
+    public List<PublicKeyConfig> listAllPublicKeyConfigs(
+    ) throws AwesomeNotificationsException {
+        return PublicKeyService
+                .getInstance()
+                .listAllPublicKeyConfigs();
+    }
+
+    public NotificationEncryptedContentModel encryptProtectedContent(
+            @NonNull NotificationDecryptedContentModel decryptedContentModel
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .encryptNotificationContent(decryptedContentModel);
+    }
+
+    public NotificationEncryptedContentModel encryptProtectedContentWithConfigs(
+            @NonNull NotificationDecryptedContentModel decryptedContentModel,
+            @NonNull SymmetricSecretConfig secretConfig,
+            @NonNull PublicKeyConfig publicKeyConfig,
+            @NonNull PublicKeyPem publicKeyPem
+    ) throws AwesomeNotificationsException {
+        return EncryptionService
+                .getInstance()
+                .encryptNotificationContentWithConfigs(
+                        decryptedContentModel,
+                        secretConfig,
+                        publicKeyConfig,
+                        publicKeyPem
+                );
+    }
+
+    public NotificationDecryptedContentModel decryptProtectedContent(
+            @NonNull NotificationEncryptedContentModel protectedContent
+    ) throws AwesomeNotificationsException {
+        final NotificationDecryptedContentModel partialDecrypted = EncryptionService
+                .getInstance()
+                .decryptVisualProtectedContent(protectedContent);
+        return EncryptionService
+                .getInstance()
+                .decryptPayloadContent(protectedContent, partialDecrypted);
+    }
+
+    public NotificationDecryptedContentModel decryptProtectedContentWithConfigs(
+            @NonNull NotificationEncryptedContentModel protectedContent,
+            @NonNull SymmetricSecretConfig secretConfig,
+            @NonNull PrivateKeyConfig privateKeyConfig,
+            @NonNull PrivateKeyPem privateKeyPem
+    ) throws AwesomeNotificationsException {
+        final NotificationDecryptedContentModel partialDecrypted = EncryptionService
+                .getInstance()
+                .decryptVisualProtectedContentWithConfigs(
+                        protectedContent,
+                        secretConfig,
+                        privateKeyConfig,
+                        privateKeyPem
+                );
+        return EncryptionService
+                .getInstance()
+                .decryptPayloadContentWithConfigs(
+                        protectedContent,
+                        partialDecrypted,
+                        secretConfig,
+                        privateKeyConfig,
+                        privateKeyPem
+                );
     }
 }

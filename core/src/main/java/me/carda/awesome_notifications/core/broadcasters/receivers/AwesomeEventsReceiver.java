@@ -13,8 +13,8 @@ import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
 import me.carda.awesome_notifications.core.listeners.AwesomeActionEventListener;
 import me.carda.awesome_notifications.core.listeners.AwesomeNotificationEventListener;
 import me.carda.awesome_notifications.core.logs.Logger;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
-import me.carda.awesome_notifications.core.models.returnedData.NotificationReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.NotificationReceived;
 import me.carda.awesome_notifications.core.utils.StringUtils;
 
 public class AwesomeEventsReceiver {
@@ -60,7 +60,7 @@ public class AwesomeEventsReceiver {
         }
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, listener.getClass().getSimpleName() + " subscribed to receive notification events");
+            Logger.getInstance().d(TAG, listener.getClass().getSimpleName() + " subscribed to receive notification events");
 
         return this;
     }
@@ -78,14 +78,14 @@ public class AwesomeEventsReceiver {
         }
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, listener.getClass().getSimpleName() + " unsubscribed from notification events");
+            Logger.getInstance().d(TAG, listener.getClass().getSimpleName() + " unsubscribed from notification events");
 
         return this;
     }
     private void notifyNotificationEvent(String eventName, NotificationReceived notificationReceived) {
 
         if(AwesomeNotifications.debug && notificationEventListeners.isEmpty())
-            Logger.w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new notification events");
+            Logger.getInstance().w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new notification events");
 
         for (AwesomeNotificationEventListener listener : notificationEventListeners)
             listener.onNewNotificationReceived(eventName, notificationReceived);
@@ -98,7 +98,7 @@ public class AwesomeEventsReceiver {
         notificationActionListeners.add(listener);
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, listener.getClass().getSimpleName() + " subscribed to receive action events");
+            Logger.getInstance().d(TAG, listener.getClass().getSimpleName() + " subscribed to receive action events");
 
         return this;
     }
@@ -106,14 +106,14 @@ public class AwesomeEventsReceiver {
         notificationActionListeners.remove(listener);
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, listener.getClass().getSimpleName() + " unsubscribed from action events");
+            Logger.getInstance().d(TAG, listener.getClass().getSimpleName() + " unsubscribed from action events");
 
         return this;
     }
     private void notifyActionEvent(String eventName, ActionReceived actionReceived) {
 
         if(AwesomeNotifications.debug && notificationEventListeners.isEmpty())
-            Logger.w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new action events");
+            Logger.getInstance().w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new action events");
 
         boolean interrupted = false;
         for (AwesomeActionEventListener listener : notificationActionListeners)
@@ -131,7 +131,7 @@ public class AwesomeEventsReceiver {
 
         if(notificationEventListeners.isEmpty()) {
             if(AwesomeNotifications.debug)
-                Logger.w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new notification events");
+                Logger.getInstance().w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new notification events");
             return;
         }
 
@@ -148,13 +148,13 @@ public class AwesomeEventsReceiver {
 
                 default:
                     if (AwesomeNotifications.debug)
-                        Logger.d(TAG, "Received unknown notification event: " + (
+                        Logger.getInstance().d(TAG, "Received unknown notification event: " + (
                                 stringUtils.isNullOrEmpty(eventName) ? "empty" : eventName));
 
             }
         } catch (Exception e) {
             if (AwesomeNotifications.debug)
-                Logger.d(TAG, String.format("%s", e.getMessage()));
+                Logger.getInstance().d(TAG, String.format("%s", e.getMessage()));
             e.printStackTrace();
         }
     }
@@ -163,7 +163,7 @@ public class AwesomeEventsReceiver {
 
         if(notificationEventListeners.isEmpty()) {
             if(AwesomeNotifications.debug)
-                Logger.w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new action events");
+                Logger.getInstance().w(TAG, "New event "+eventName+" ignored, as there is no listeners waiting for new action events");
             return;
         }
 
@@ -188,13 +188,13 @@ public class AwesomeEventsReceiver {
 
                 default:
                     if (AwesomeNotifications.debug)
-                        Logger.d(TAG, "Received unknown action event: " + (
+                        Logger.getInstance().d(TAG, "Received unknown action event: " + (
                                 stringUtils.isNullOrEmpty(eventName) ? "empty" : eventName));
 
             }
         } catch (Exception e) {
             if (AwesomeNotifications.debug)
-                Logger.d(TAG, String.format("%s", e.getMessage()));
+                Logger.getInstance().d(TAG, String.format("%s", e.getMessage()));
             e.printStackTrace();
         }
     }
@@ -206,7 +206,7 @@ public class AwesomeEventsReceiver {
             notificationReceived.validate(context);
 
             if (AwesomeNotifications.debug)
-                Logger.d(TAG, "New notification creation event");
+                Logger.getInstance().d(TAG, "New notification creation event");
 
             notifyNotificationEvent(Definitions.EVENT_NOTIFICATION_CREATED, notificationReceived);
 
@@ -226,7 +226,7 @@ public class AwesomeEventsReceiver {
             notificationReceived.validate(context);
 
             if (AwesomeNotifications.debug)
-                Logger.d(TAG, "New notification display event");
+                Logger.getInstance().d(TAG, "New notification display event");
 
             notifyNotificationEvent(Definitions.EVENT_NOTIFICATION_DISPLAYED, notificationReceived);
 
@@ -246,13 +246,13 @@ public class AwesomeEventsReceiver {
             actionReceived.validate(context);
 
             if(AwesomeNotifications.debug)
-                Logger.d(TAG, "New notification action event");
+                Logger.getInstance().d(TAG, "New notification action event");
 
             notifyActionEvent(Definitions.EVENT_DEFAULT_ACTION, actionReceived);
 
         } catch (Exception e) {
             if(AwesomeNotifications.debug)
-                Logger.d(TAG, String.format("%s", e.getMessage()));
+                Logger.getInstance().d(TAG, String.format("%s", e.getMessage()));
             e.printStackTrace();
         }
     }
@@ -262,7 +262,7 @@ public class AwesomeEventsReceiver {
             actionReceived.validate(context);
 
             if (AwesomeNotifications.debug)
-                Logger.d(TAG, "New notification dismiss event");
+                Logger.getInstance().d(TAG, "New notification dismiss event");
 
             notifyActionEvent(Definitions.EVENT_NOTIFICATION_DISMISSED, actionReceived);
 
@@ -282,7 +282,7 @@ public class AwesomeEventsReceiver {
             actionReceived.validate(context);
 
             if(AwesomeNotifications.debug)
-                Logger.d(TAG, "New silent action event");
+                Logger.getInstance().d(TAG, "New silent action event");
 
             notifyActionEvent(Definitions.EVENT_SILENT_ACTION, actionReceived);
 
@@ -302,7 +302,7 @@ public class AwesomeEventsReceiver {
             actionReceived.validate(context);
 
             if (AwesomeNotifications.debug)
-                Logger.d(TAG, "New background silent action event");
+                Logger.getInstance().d(TAG, "New background silent action event");
 
             notifyActionEvent(Definitions.EVENT_SILENT_ACTION, actionReceived);
 

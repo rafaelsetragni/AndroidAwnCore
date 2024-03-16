@@ -65,7 +65,7 @@ public class MapUtils {
             }
         }
         catch (Exception e){
-            Logger.d(TAG,"Argument is not a type of " + Optional.class.getSimpleName());
+            Logger.getInstance().d(TAG,"Argument is not a type of " + Optional.class.getSimpleName());
         }
 
         return Optional.absent();
@@ -172,7 +172,7 @@ public class MapUtils {
             }*/
         }
         catch (Exception e){
-            Logger.d(TAG, key + " is not a type of " + Optional.class.getSimpleName());
+            Logger.getInstance().d(TAG, key + " is not a type of " + Optional.class.getSimpleName());
         }
 
         return Optional.absent();

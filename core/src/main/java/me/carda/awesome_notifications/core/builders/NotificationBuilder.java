@@ -60,7 +60,6 @@ import me.carda.awesome_notifications.core.enumerators.NotificationPrivacy;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
 import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
 import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
-import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.managers.BadgeManager;
 import me.carda.awesome_notifications.core.managers.ChannelManager;
 import me.carda.awesome_notifications.core.managers.DefaultsManager;
@@ -73,7 +72,8 @@ import me.carda.awesome_notifications.core.models.NotificationContentModel;
 import me.carda.awesome_notifications.core.models.NotificationLocalizationModel;
 import me.carda.awesome_notifications.core.models.NotificationMessageModel;
 import me.carda.awesome_notifications.core.models.NotificationModel;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
+import me.carda.awesome_notifications.core.services.encryption.EncryptionService;
 import me.carda.awesome_notifications.core.threads.NotificationSender;
 import me.carda.awesome_notifications.core.utils.BitmapUtils;
 import me.carda.awesome_notifications.core.utils.BooleanUtils;
@@ -453,6 +453,8 @@ public class NotificationBuilder {
             NotificationModel notificationModel = new NotificationModel().fromJson(notificationJson);
             if (notificationModel == null) return null;
 
+            decryptProtectedPayloadContent(context, notificationModel);
+
             ActionReceived actionModel =
                     new ActionReceived(
                         notificationModel.content,
@@ -604,6 +606,7 @@ public class NotificationBuilder {
         setChannelKey(context, channel, builder);
         setNotificationId(notificationModel);
 
+        decryptProtectedVisualContent(context, notificationModel);
         setCurrentTranslation(context, notificationModel);
 
         setTitle(notificationModel, builder);
@@ -801,6 +804,98 @@ public class NotificationBuilder {
 
     private void setAutoCancel(NotificationModel notificationModel, NotificationCompat.Builder builder) {
         builder.setAutoCancel(BooleanUtils.getInstance().getValueOrDefault(notificationModel.content.autoDismissible, true));
+    }
+
+    private void encryptProtectedContent(
+            Context context,
+            NotificationModel notificationModel
+    ) {
+        if (notificationModel.decryptedContent == null) return;
+        if (notificationModel.encryptedContent != null) return;
+        try {
+            notificationModel.encryptedContent = EncryptionService
+                    .getInstance()
+                    .encryptNotificationContent(
+                            context,
+                            notificationModel.decryptedContent
+                    );
+        } catch (Exception e){
+            ExceptionFactory
+                    .getInstance()
+                    .registerNewAwesomeException(
+                            TAG,
+                            ExceptionCode.CODE_INVALID_ARGUMENTS,
+                            "The protected encryption has failed for the public key \""+
+                                    notificationModel.decryptedContent.keyReference +"\"",
+                            ExceptionCode.DETAILED_INVALID_ARGUMENTS+".encryptProtectedContent",
+                            e);
+        }
+    }
+
+    private void decryptProtectedVisualContent(
+            Context context,
+            NotificationModel notificationModel
+    ) {
+        if (notificationModel.decryptedContent != null) return;
+        if (notificationModel.encryptedContent == null) return;
+        if (
+            notificationModel.encryptedContent.title == null &&
+            notificationModel.encryptedContent.body == null &&
+            notificationModel.encryptedContent.summary == null &&
+            notificationModel.encryptedContent.largeIcon == null &&
+            notificationModel.encryptedContent.bigPicture == null
+        ) return;
+
+        try {
+            notificationModel.decryptedContent = EncryptionService
+                    .getInstance()
+                    .decryptVisualProtectedContent(
+                            context,
+                            notificationModel.encryptedContent
+                    );
+        } catch (Exception e){
+            ExceptionFactory
+                    .getInstance()
+                    .registerNewAwesomeException(
+                            TAG,
+                            ExceptionCode.CODE_INVALID_ARGUMENTS,
+                            "The visual decryption has failed for the private key \""+
+                                    notificationModel.encryptedContent.keyReference +"\"",
+                            ExceptionCode.DETAILED_INVALID_ARGUMENTS+".decryptProtectedVisualContent",
+                            e);
+        }
+    }
+
+    private void decryptProtectedPayloadContent(
+            Context context,
+            NotificationModel notificationModel
+    ) {
+        if (notificationModel.encryptedContent == null) return;
+        if (notificationModel.encryptedContent.payload == null) return;
+        if (
+            notificationModel.decryptedContent != null &&
+            notificationModel.decryptedContent.payload != null
+        ) return;
+
+        try {
+            notificationModel.decryptedContent = EncryptionService
+                    .getInstance()
+                    .decryptPayloadContent(
+                            context,
+                            notificationModel.encryptedContent,
+                            notificationModel.decryptedContent
+                    );
+        } catch (Exception e){
+            ExceptionFactory
+                    .getInstance()
+                    .registerNewAwesomeException(
+                            TAG,
+                            ExceptionCode.CODE_INVALID_ARGUMENTS,
+                            "The payload decryption has failed for the private key \""+
+                                    notificationModel.encryptedContent.keyReference +"\"",
+                            ExceptionCode.DETAILED_INVALID_ARGUMENTS+".decryptProtectedPayloadContent",
+                            e);
+        }
     }
 
     private void setCurrentTranslation(
@@ -1428,6 +1523,10 @@ public class NotificationBuilder {
         String groupKey = getGroupKey(contentModel, channelModel);
 
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M /*Android 6*/) {
+        final String chatTitle = contentModel.summary != null
+                ? contentModel.summary
+                : contentModel.title;
+
 
         String messageQueueKey = groupKey + (isGrouping ? ".Gr" : "");
 
@@ -1487,7 +1586,7 @@ public class NotificationBuilder {
                         message.message, message.timestamp, person);
             } else {
                 messagingStyle.addMessage(
-                        message.message, message.timestamp, message.title);
+                        message.message, message.timestamp, chatTitle);
             }
         }
 

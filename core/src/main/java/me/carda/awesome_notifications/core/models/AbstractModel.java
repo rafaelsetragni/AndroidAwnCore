@@ -205,246 +205,40 @@ public abstract class AbstractModel implements Cloneable {
 
     // ***********************  INPUT SERIALIZATION METHODS   *********************************
 
-    public ActionType getValueOrDefault(
+    public <T extends SafeEnum> T getValueOrDefaultSafeEnum(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
-            @NonNull Class<ActionType> type,
-            @Nullable ActionType defaultValue
+            @NonNull Class<T> enumClass,
+            @NonNull T[] elements,
+            @Nullable T defaultValue
     ){
         Object value = map.get(reference);
         if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return ActionType.getSafeEnum((String) value);
-
+        if(enumClass.isInstance(value)) return enumClass.cast(value);
+        if(value instanceof String) {
+            for (T element : elements) {
+                if (element.getSafeName().equals((String) value)){
+                    return element;
+                }
+            }
+        }
         return defaultValue;
     }
 
-    public DefaultRingtoneType getValueOrDefault(
+    @Nullable
+    public Serializable getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
-            @NonNull Class<DefaultRingtoneType> type,
-            @Nullable DefaultRingtoneType defaultValue
+            @NonNull Class<Serializable> type,
+            @Nullable Serializable defaultValue
     ){
         Object value = map.get(reference);
         if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return DefaultRingtoneType.getSafeEnum((String) value);
-
+        if(value instanceof Serializable) return (Serializable) value;
         return defaultValue;
     }
 
-    public ForegroundServiceType getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<ForegroundServiceType> type,
-            @Nullable ForegroundServiceType defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return ForegroundServiceType.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public ForegroundStartMode getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<ForegroundStartMode> type,
-            @Nullable ForegroundStartMode defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return ForegroundStartMode.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public GroupAlertBehaviour getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<GroupAlertBehaviour> type,
-            @Nullable GroupAlertBehaviour defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return GroupAlertBehaviour.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public GroupSort getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<GroupSort> type,
-            @Nullable GroupSort defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return GroupSort.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public LogLevel getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<LogLevel> type,
-            @Nullable LogLevel defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return LogLevel.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public MediaSource getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<MediaSource> type,
-            @Nullable MediaSource defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return MediaSource.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public NotificationCategory getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<NotificationCategory> type,
-            @Nullable NotificationCategory defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return NotificationCategory.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public NotificationImportance getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<NotificationImportance> type,
-            @Nullable NotificationImportance defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return NotificationImportance.getSafeEnum((String) value);
-
-        return defaultValue;
-    }
-
-    public NotificationLayout getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<NotificationLayout> type,
-            @Nullable NotificationLayout defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return NotificationLayout.getSafeEnum((String) value);
-
-        if(value instanceof NotificationLayout)
-            return (NotificationLayout) value;
-
-        return defaultValue;
-    }
-
-    public NotificationLifeCycle getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<NotificationLifeCycle> type,
-            @Nullable NotificationLifeCycle defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return NotificationLifeCycle.getSafeEnum((String) value);
-
-        if(value instanceof NotificationLifeCycle)
-            return (NotificationLifeCycle) value;
-
-        return defaultValue;
-    }
-
-    public NotificationPermission getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<NotificationPermission> type,
-            @Nullable NotificationPermission defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return NotificationPermission.getSafeEnum((String) value);
-
-        if(value instanceof NotificationPermission)
-            return (NotificationPermission) value;
-
-        return defaultValue;
-    }
-
-    public NotificationPrivacy getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<NotificationPrivacy> type,
-            @Nullable NotificationPrivacy defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return NotificationPrivacy.getSafeEnum((String) value);
-
-        if(value instanceof NotificationPrivacy)
-            return (NotificationPrivacy) value;
-
-        return defaultValue;
-    }
-
-    public NotificationSource getValueOrDefault(
-            @NonNull Map<String, Object> map,
-            @NonNull String reference,
-            @NonNull Class<NotificationSource> type,
-            @Nullable NotificationSource defaultValue
-    ){
-        Object value = map.get(reference);
-        if(value == null) return defaultValue;
-
-        if(value instanceof String)
-            return NotificationSource.getSafeEnum((String) value);
-
-        if(value instanceof NotificationSource)
-            return (NotificationSource) value;
-
-        return defaultValue;
-    }
-
+    @Nullable
     public TimeZone getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -457,6 +251,7 @@ public abstract class AbstractModel implements Cloneable {
         return serializableUtils.deserializeTimeZone((String) value);
     }
 
+    @Nullable
     public Calendar getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -472,6 +267,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public String getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -487,6 +283,7 @@ public abstract class AbstractModel implements Cloneable {
         return value.toString();
     }
 
+    @Nullable
     public Integer getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -502,6 +299,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public Float getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -524,6 +322,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public Double getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -546,6 +345,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public Long getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -577,6 +377,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public Short getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -592,6 +393,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public Byte getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -607,6 +409,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public Boolean getValueOrDefault(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -622,6 +425,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
     public long[] getValueOrDefault(
             @NonNull Map<String, Object> map,
@@ -633,7 +437,7 @@ public abstract class AbstractModel implements Cloneable {
         if(value == null) return defaultValue;
 
         if(value instanceof List)
-            return Longs.toArray((List)value);
+            return Longs.toArray((List<Number>)value);
 
         if(value instanceof long[])
             return (long[]) value;
@@ -641,6 +445,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public List<Calendar> getValueOrDefaultCalendarList(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -653,7 +458,7 @@ public abstract class AbstractModel implements Cloneable {
             return defaultValue;
         }
 
-        List<String> dateStrings = (List) value;
+        List<String> dateStrings = (List<String>) value;
         List<Calendar> calendars = new ArrayList<>();
 
         for (String dateString : dateStrings) {
@@ -663,6 +468,7 @@ public abstract class AbstractModel implements Cloneable {
         return calendars;
     }
 
+    @Nullable
     public <T> List<T> getValueOrDefaultList(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
@@ -697,6 +503,7 @@ public abstract class AbstractModel implements Cloneable {
         return defaultValue;
     }
 
+    @Nullable
     public <T, K> Map<T, K> getValueOrDefaultMap(
             @NonNull Map<String, Object> map,
             @NonNull String reference,

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
 
 public class ActionManager extends EventManager {
 

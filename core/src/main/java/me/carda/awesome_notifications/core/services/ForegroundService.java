@@ -110,11 +110,11 @@ public class ForegroundService extends Service {
         if(foregroundService != null) {
             foregroundService.stopSelf();
             if(AwesomeNotifications.debug)
-                Logger.d(TAG, "Foreground service "+ notificationId +" id stopped");
+                Logger.getInstance().d(TAG, "Foreground service "+ notificationId +" id stopped");
         }
         else {
             if(AwesomeNotifications.debug)
-                Logger.d(TAG, "Foreground service "+ notificationId +" id not found");
+                Logger.getInstance().d(TAG, "Foreground service "+ notificationId +" id not found");
         }
     }
 

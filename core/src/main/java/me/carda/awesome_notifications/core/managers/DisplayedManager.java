@@ -9,7 +9,7 @@ import java.util.List;
 
 import me.carda.awesome_notifications.core.Definitions;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
-import me.carda.awesome_notifications.core.models.returnedData.NotificationReceived;
+import me.carda.awesome_notifications.core.models.actions.NotificationReceived;
 import me.carda.awesome_notifications.core.utils.StringUtils;
 
 public class DisplayedManager extends EventManager {

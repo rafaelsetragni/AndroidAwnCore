@@ -14,6 +14,8 @@ import me.carda.awesome_notifications.core.Definitions;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
 import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
 import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
+import me.carda.awesome_notifications.core.models.encrypted.NotificationDecryptedContentModel;
+import me.carda.awesome_notifications.core.models.encrypted.NotificationEncryptedContentModel;
 
 public class NotificationModel extends AbstractModel {
 
@@ -26,6 +28,8 @@ public class NotificationModel extends AbstractModel {
     public NotificationScheduleModel schedule;
     public List<NotificationButtonModel> actionButtons;
     public Map<String, NotificationLocalizationModel> localizations;
+    public NotificationEncryptedContentModel encryptedContent;
+    public NotificationDecryptedContentModel decryptedContent;
 
     public NotificationModel(){}
 
@@ -36,12 +40,20 @@ public class NotificationModel extends AbstractModel {
     @Override
     @Nullable
     public NotificationModel fromMap(Map<String, Object> parameters){
-        content = extractNotificationContent(parameters);
+        content = extractNotificationContent(
+                Definitions.NOTIFICATION_MODEL_CONTENT, parameters);
         if(content == null) return null;
 
-        schedule = extractNotificationSchedule(parameters);
-        actionButtons = extractNotificationButtons(parameters);
-        localizations = extractNotificationLocalizations(parameters);
+        schedule = extractNotificationSchedule(
+                Definitions.NOTIFICATION_MODEL_SCHEDULE, parameters);
+        actionButtons = extractNotificationButtons(
+                Definitions.NOTIFICATION_MODEL_BUTTONS, parameters);
+        localizations = extractNotificationLocalizations(
+                Definitions.NOTIFICATION_MODEL_LOCALIZATIONS, parameters);
+        encryptedContent = extractNotificationEncryptedContent(
+                Definitions.NOTIFICATION_MODEL_ENCRYPTED_CONTENT, parameters);
+        decryptedContent = extractNotificationDecryptedContent(
+                Definitions.NOTIFICATION_MODEL_DECRYPTED_CONTENT, parameters);
 
         return this;
     }
@@ -55,6 +67,8 @@ public class NotificationModel extends AbstractModel {
         putDataOnSerializedMap(Definitions.NOTIFICATION_MODEL_SCHEDULE, dataMap, schedule);
         putDataOnSerializedMap(Definitions.NOTIFICATION_MODEL_BUTTONS, dataMap, actionButtons);
         putDataOnSerializedMap(Definitions.NOTIFICATION_MODEL_LOCALIZATIONS, dataMap, localizations);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_MODEL_ENCRYPTED_CONTENT, dataMap, encryptedContent);
+        putDataOnSerializedMap(Definitions.NOTIFICATION_MODEL_DECRYPTED_CONTENT, dataMap, decryptedContent);
 
         return dataMap;
     }
@@ -69,11 +83,13 @@ public class NotificationModel extends AbstractModel {
         return (NotificationModel) super.templateFromJson(json);
     }
 
+    @Nullable
     private static NotificationContentModel extractNotificationContent(
+            @NonNull String reference,
             @NonNull Map<String, Object> parameters
     ){
-        if(!parameters.containsKey(Definitions.NOTIFICATION_MODEL_CONTENT)) return null;
-        Object obj = parameters.get(Definitions.NOTIFICATION_MODEL_CONTENT);
+        if(!parameters.containsKey(reference)) return null;
+        Object obj = parameters.get(reference);
 
         if(!(obj instanceof Map<?,?>)) return null;
 
@@ -84,11 +100,13 @@ public class NotificationModel extends AbstractModel {
         else return new NotificationContentModel().fromMap(map);
     }
 
+    @Nullable
     private static NotificationScheduleModel extractNotificationSchedule(
+            @NonNull String reference,
             @NonNull Map<String, Object> parameters
     ){
-        if(!parameters.containsKey(Definitions.NOTIFICATION_MODEL_SCHEDULE)) return null;
-        Object obj = parameters.get(Definitions.NOTIFICATION_MODEL_SCHEDULE);
+        if(!parameters.containsKey(reference)) return null;
+        Object obj = parameters.get(reference);
 
         if(!(obj instanceof Map<?,?>)) return null;
 
@@ -99,11 +117,13 @@ public class NotificationModel extends AbstractModel {
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     private static List<NotificationButtonModel> extractNotificationButtons(
+            @NonNull String reference,
             @NonNull Map<String, Object> parameters
     ){
-        if(!parameters.containsKey(Definitions.NOTIFICATION_MODEL_BUTTONS)) return null;
-        Object obj = parameters.get(Definitions.NOTIFICATION_MODEL_BUTTONS);
+        if(!parameters.containsKey(reference)) return null;
+        Object obj = parameters.get(reference);
 
         if(!(obj instanceof List<?>)) return null;
         List<Object> actionButtonsData = (List<Object>) obj;
@@ -125,9 +145,12 @@ public class NotificationModel extends AbstractModel {
         return actionButtons;
     }
 
-    private Map<String, NotificationLocalizationModel> extractNotificationLocalizations(Map<String, Object> parameters) {
-        if(!parameters.containsKey(Definitions.NOTIFICATION_MODEL_LOCALIZATIONS)) return null;
-        Object obj = parameters.get(Definitions.NOTIFICATION_MODEL_LOCALIZATIONS);
+    private Map<String, NotificationLocalizationModel> extractNotificationLocalizations(
+            @NonNull String reference,
+            @NonNull Map<String, Object> parameters
+    ) {
+        if(!parameters.containsKey(reference)) return null;
+        Object obj = parameters.get(reference);
 
         if(!(obj instanceof Map<?,?>)) return null;
         Map<String, Object> localizationsData = (Map<String, Object>) obj;
@@ -145,6 +168,38 @@ public class NotificationModel extends AbstractModel {
 
         if (localizationModels.isEmpty()) return null;
         return localizationModels;
+    }
+
+    @Nullable
+    private NotificationEncryptedContentModel extractNotificationEncryptedContent(
+            @NonNull String reference,
+            @NonNull Map<String, Object> parameters
+    ) {
+        if(!parameters.containsKey(reference)) return null;
+        Object obj = parameters.get(reference);
+
+        if(!(obj instanceof Map<?,?>)) return null;
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = (Map<String, Object>) obj;
+
+        return new NotificationEncryptedContentModel("").fromMap(map);
+    }
+
+    @Nullable
+    private NotificationDecryptedContentModel extractNotificationDecryptedContent(
+            @NonNull String reference,
+            @NonNull Map<String, Object> parameters
+    ) {
+        if(!parameters.containsKey(reference)) return null;
+        Object obj = parameters.get(reference);
+
+        if(!(obj instanceof Map<?,?>)) return null;
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = (Map<String, Object>) obj;
+
+        return new NotificationDecryptedContentModel("").fromMap(map);
     }
 
     public void validate(

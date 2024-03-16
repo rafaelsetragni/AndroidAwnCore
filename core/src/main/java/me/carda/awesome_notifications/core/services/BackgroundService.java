@@ -21,7 +21,7 @@ public abstract class BackgroundService extends JobIntentService {
 
     @Override
     protected void onHandleWork(@NonNull final Intent intent) {
-        Logger.d(TAG, "A new Dart background service has started");
+        Logger.getInstance().d(TAG, "A new Dart background service has started");
         try {
             initializeExternalPlugins(this);
             AwesomeNotifications.initialize(this);

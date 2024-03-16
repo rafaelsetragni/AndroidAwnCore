@@ -36,7 +36,7 @@ public class NotificationButtonModel extends AbstractModel {
         icon              = getValueOrDefault(arguments, Definitions.NOTIFICATION_BUTTON_ICON, String.class, null);
         label             = getValueOrDefault(arguments, Definitions.NOTIFICATION_BUTTON_LABEL, String.class, null);
         color             = getValueOrDefault(arguments, Definitions.NOTIFICATION_COLOR, Integer.class, null);
-        actionType        = getValueOrDefault(arguments, Definitions.NOTIFICATION_ACTION_TYPE, ActionType.class, ActionType.Default);
+        actionType        = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_ACTION_TYPE, ActionType.class, ActionType.values(), ActionType.Default);
         enabled           = getValueOrDefault(arguments, Definitions.NOTIFICATION_ENABLED, Boolean.class, true);
         requireInputText  = getValueOrDefault(arguments, Definitions.NOTIFICATION_REQUIRE_INPUT_TEXT, Boolean.class, false);
         isDangerousOption = getValueOrDefault(arguments, Definitions.NOTIFICATION_IS_DANGEROUS_OPTION, Boolean.class, false);
@@ -51,13 +51,13 @@ public class NotificationButtonModel extends AbstractModel {
     private void processRetroCompatibility(Map<String, Object> arguments){
 
         if (arguments.containsKey("autoCancel")) {
-            Logger.w("AwesomeNotifications", "autoCancel is deprecated. Please use autoDismissible instead.");
+            Logger.getInstance().w("AwesomeNotifications", "autoCancel is deprecated. Please use autoDismissible instead.");
             autoDismissible   = getValueOrDefault(arguments, "autoCancel", Boolean.class, true);
         }
 
         if (arguments.containsKey("buttonType")){
-            Logger.w("AwesomeNotifications", "buttonType is deprecated. Please use actionType instead.");
-            actionType = getValueOrDefault(arguments, "buttonType", ActionType.class, ActionType.Default);
+            Logger.getInstance().w("AwesomeNotifications", "buttonType is deprecated. Please use actionType instead.");
+            actionType = getValueOrDefaultSafeEnum(arguments, "buttonType", ActionType.class, ActionType.values(), ActionType.Default);
         }
 
         adaptInputFieldToRequireText();
@@ -66,7 +66,7 @@ public class NotificationButtonModel extends AbstractModel {
     // Retro-compatibility with 0.6.X
     private void adaptInputFieldToRequireText(){
         if (actionType == ActionType.InputField) {
-            Logger.d("AwesomeNotifications", "InputField is deprecated. Please use requireInputText instead.");
+            Logger.getInstance().d("AwesomeNotifications", "InputField is deprecated. Please use requireInputText instead.");
             actionType = ActionType.SilentAction;
             requireInputText = true;
         }

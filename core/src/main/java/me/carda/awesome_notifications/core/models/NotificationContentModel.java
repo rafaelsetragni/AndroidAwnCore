@@ -122,12 +122,12 @@ public class NotificationContentModel extends AbstractModel {
         processRetroCompatibility(arguments);
 
         id                    = getValueOrDefault(arguments, Definitions.NOTIFICATION_ID, Integer.class, 0);
-        actionType            = getValueOrDefault(arguments, Definitions.NOTIFICATION_ACTION_TYPE, ActionType.class, ActionType.Default);
+        actionType            = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_ACTION_TYPE, ActionType.class, ActionType.values(), ActionType.Default);
         createdDate           = getValueOrDefault(arguments, Definitions.NOTIFICATION_CREATED_DATE, Calendar.class, null);
         displayedDate         = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISPLAYED_DATE, Calendar.class, null);
-        createdLifeCycle      = getValueOrDefault(arguments, Definitions.NOTIFICATION_CREATED_LIFECYCLE, NotificationLifeCycle.class, null);
-        displayedLifeCycle    = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISPLAYED_LIFECYCLE, NotificationLifeCycle.class, null);
-        createdSource         = getValueOrDefault(arguments, Definitions.NOTIFICATION_CREATED_SOURCE, NotificationSource.class, NotificationSource.Local);
+        createdLifeCycle      = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_CREATED_LIFECYCLE, NotificationLifeCycle.class, NotificationLifeCycle.values(), null);
+        displayedLifeCycle    = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_DISPLAYED_LIFECYCLE, NotificationLifeCycle.class, NotificationLifeCycle.values(), null);
+        createdSource         = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_CREATED_SOURCE, NotificationSource.class, NotificationSource.values(), NotificationSource.Local);
         channelKey            = getValueOrDefault(arguments, Definitions.NOTIFICATION_CHANNEL_KEY, String.class, "miscellaneous");
         color                 = getValueOrDefault(arguments, Definitions.NOTIFICATION_COLOR, Integer.class, null);
         backgroundColor       = getValueOrDefault(arguments, Definitions.NOTIFICATION_BACKGROUND_COLOR, Integer.class, null);
@@ -143,9 +143,9 @@ public class NotificationContentModel extends AbstractModel {
         displayOnForeground   = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISPLAY_ON_FOREGROUND, Boolean.class, true);
         displayOnBackground   = getValueOrDefault(arguments, Definitions.NOTIFICATION_DISPLAY_ON_BACKGROUND, Boolean.class, true);
         hideLargeIconOnExpand = getValueOrDefault(arguments, Definitions.NOTIFICATION_HIDE_LARGE_ICON_ON_EXPAND, Boolean.class, false);
-        notificationLayout    = getValueOrDefault(arguments, Definitions.NOTIFICATION_LAYOUT, NotificationLayout.class, NotificationLayout.Default);
-        privacy               = getValueOrDefault(arguments, Definitions.NOTIFICATION_PRIVACY, NotificationPrivacy.class, NotificationPrivacy.Private);
-        category              = getValueOrDefault(arguments, Definitions.NOTIFICATION_CATEGORY, NotificationCategory.class, null);
+        notificationLayout    = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_LAYOUT, NotificationLayout.class, NotificationLayout.values(), NotificationLayout.Default);
+        privacy               = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_PRIVACY, NotificationPrivacy.class, NotificationPrivacy.values(), NotificationPrivacy.Private);
+        category              = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_CATEGORY, NotificationCategory.class, NotificationCategory.values(), null);
         privateMessage        = getValueOrDefault(arguments, Definitions.NOTIFICATION_PRIVATE_MESSAGE, String.class, null);
         icon                  = getValueOrDefault(arguments, Definitions.NOTIFICATION_ICON, String.class, null);
         largeIcon             = getValueOrDefault(arguments, Definitions.NOTIFICATION_LARGE_ICON, String.class, null);
@@ -177,14 +177,14 @@ public class NotificationContentModel extends AbstractModel {
     // Retro-compatibility with 0.6.X
     public void processRetroCompatibility(@NonNull Map<String, Object> arguments){
         if (arguments.containsKey("autoCancel")) {
-            Logger.i("AwesomeNotifications", "autoCancel is now deprecated. Please use autoDismissible instead.");
+            Logger.getInstance().i("AwesomeNotifications", "autoCancel is now deprecated. Please use autoDismissible instead.");
             autoDismissible   = getValueOrDefault(arguments, "autoCancel", Boolean.class, true);
         }
 
         for (Map.Entry<String, Object> entry : arguments.entrySet()){
             Object value = entry.getValue();
             if (value != null && value.equals("AppKilled")){
-                Logger.i("AwesomeNotifications", "AppKilled is now deprecated. Please use Terminated instead.");
+                Logger.getInstance().i("AwesomeNotifications", "AppKilled is now deprecated. Please use Terminated instead.");
                 arguments.put(entry.getKey(), NotificationLifeCycle.Terminated);
             }
         }
@@ -243,8 +243,8 @@ public class NotificationContentModel extends AbstractModel {
         return returnedObject;
     }
 
-    public static List<Map> messagesToMap(@Nullable List<NotificationMessageModel> messages){
-        List<Map> returnedMessages = new ArrayList<>();
+    public static List<Map<String, Object>> messagesToMap(@Nullable List<NotificationMessageModel> messages){
+        List<Map<String, Object>> returnedMessages = new ArrayList<>();
         if(!ListUtils.isNullOrEmpty(messages)){
             for (NotificationMessageModel messageModel : messages) {
                 returnedMessages.add(messageModel.toMap());
@@ -253,7 +253,7 @@ public class NotificationContentModel extends AbstractModel {
         return returnedMessages;
     }
 
-    public static List<NotificationMessageModel> mapToMessages(@Nullable List<Map> messagesData){
+    public static List<NotificationMessageModel> mapToMessages(@Nullable List<Map<String, Object>> messagesData){
         List<NotificationMessageModel> messages = new ArrayList<>();
         if(!ListUtils.isNullOrEmpty(messagesData))
             for(Map<String, Object> messageData : messagesData){

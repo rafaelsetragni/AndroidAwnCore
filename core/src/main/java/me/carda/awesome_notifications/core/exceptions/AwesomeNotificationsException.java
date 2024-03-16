@@ -41,6 +41,18 @@ public class AwesomeNotificationsException extends Exception {
         this.setStackTrace(originalException.getStackTrace());
     }
 
+    AwesomeNotificationsException(
+            @NonNull String code,
+            @NonNull String message,
+            @NonNull String detailedCode,
+            @NonNull Error originalError
+    ){
+        super(message);
+        this.code = code;
+        this.detailedCode = detailedCode;
+        this.setStackTrace(originalError.getStackTrace());
+    }
+
     @NonNull
     public final String getCode(){
         return code;

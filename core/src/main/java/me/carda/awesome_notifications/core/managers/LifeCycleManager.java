@@ -66,7 +66,7 @@ public class LifeCycleManager implements LifecycleObserver {
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, "LiceCycleManager listener successfully attached to Android");
+            Logger.getInstance().d(TAG, "LiceCycleManager listener successfully attached to Android");
     }
 
     public void stopListeners(){
@@ -75,7 +75,7 @@ public class LifeCycleManager implements LifecycleObserver {
         ProcessLifecycleOwner.get().getLifecycle().removeObserver(this);
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, "LiceCycleManager listener successfully removed from Android");
+            Logger.getInstance().d(TAG, "LiceCycleManager listener successfully removed from Android");
     }
 
     boolean hasGoneForeground = false;
@@ -91,7 +91,7 @@ public class LifeCycleManager implements LifecycleObserver {
         notify(appLifeCycle);
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, "App is now "+lifeCycle);
+            Logger.getInstance().d(TAG, "App is now "+lifeCycle);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

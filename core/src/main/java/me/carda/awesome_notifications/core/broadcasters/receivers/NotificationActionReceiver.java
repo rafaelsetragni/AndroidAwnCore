@@ -13,7 +13,7 @@ import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsExcept
 import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.managers.LifeCycleManager;
 import me.carda.awesome_notifications.core.managers.StatusBarManager;
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
 import me.carda.awesome_notifications.core.services.ForegroundService;
 import me.carda.awesome_notifications.core.utils.StringUtils;
 
@@ -33,7 +33,7 @@ public abstract class NotificationActionReceiver extends AwesomeBroadcastReceive
     public static void receiveActionIntent(final Context context, Intent intent, boolean onInitialization) throws Exception {
 
         if(AwesomeNotifications.debug)
-            Logger.d(TAG, "New action received");
+            Logger.getInstance().d(TAG, "New action received");
 
         NotificationBuilder notificationBuilder = NotificationBuilder.getNewBuilder();
 
@@ -55,7 +55,7 @@ public abstract class NotificationActionReceiver extends AwesomeBroadcastReceive
         // In case there is not a valid notification intent
         if (actionReceived == null) {
             if(AwesomeNotifications.debug)
-                Logger.w(
+                Logger.getInstance().w(
                         TAG,
                         "The action received do not contain any awesome " +
                         "notification data and was discarded");

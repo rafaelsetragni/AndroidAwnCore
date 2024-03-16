@@ -152,11 +152,11 @@ public class NotificationChannelModel extends AbstractModel {
         enableLights        = getValueOrDefault(arguments, Definitions.NOTIFICATION_ENABLE_LIGHTS, Boolean.class, true);
         ledOnMs             = getValueOrDefault(arguments, Definitions.NOTIFICATION_LED_ON_MS, Integer.class, 300);
         ledOffMs            = getValueOrDefault(arguments, Definitions.NOTIFICATION_LED_OFF_MS, Integer.class, 700);
-        importance          = getValueOrDefault(arguments, Definitions.NOTIFICATION_IMPORTANCE, NotificationImportance.class, NotificationImportance.Default);
-        groupSort           = getValueOrDefault(arguments, Definitions.NOTIFICATION_GROUP_SORT, GroupSort.class, GroupSort.Desc);
-        groupAlertBehavior  = getValueOrDefault(arguments, Definitions.NOTIFICATION_GROUP_ALERT_BEHAVIOR, GroupAlertBehaviour.class, GroupAlertBehaviour.All);
-        defaultPrivacy      = getValueOrDefault(arguments, Definitions.NOTIFICATION_DEFAULT_PRIVACY, NotificationPrivacy.class, NotificationPrivacy.Private);
-        defaultRingtoneType = getValueOrDefault(arguments, Definitions.NOTIFICATION_DEFAULT_RINGTONE_TYPE, DefaultRingtoneType.class, DefaultRingtoneType.Notification);
+        importance          = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_IMPORTANCE, NotificationImportance.class, NotificationImportance.values(), NotificationImportance.Default);
+        groupSort           = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_GROUP_SORT, GroupSort.class, GroupSort.values(), GroupSort.Desc);
+        groupAlertBehavior  = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_GROUP_ALERT_BEHAVIOR, GroupAlertBehaviour.class, GroupAlertBehaviour.values(), GroupAlertBehaviour.All);
+        defaultPrivacy      = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_DEFAULT_PRIVACY, NotificationPrivacy.class, NotificationPrivacy.values(), NotificationPrivacy.Private);
+        defaultRingtoneType = getValueOrDefaultSafeEnum(arguments, Definitions.NOTIFICATION_DEFAULT_RINGTONE_TYPE, DefaultRingtoneType.class, DefaultRingtoneType.values(), DefaultRingtoneType.Notification);
         groupKey            = getValueOrDefault(arguments, Definitions.NOTIFICATION_GROUP_KEY, String.class, null);
         locked              = getValueOrDefault(arguments, Definitions.NOTIFICATION_LOCKED, Boolean.class, false);
         onlyAlertOnce       = getValueOrDefault(arguments, Definitions.NOTIFICATION_ONLY_ALERT_ONCE, Boolean.class, false);

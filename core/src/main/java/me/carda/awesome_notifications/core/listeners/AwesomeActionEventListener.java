@@ -1,6 +1,6 @@
 package me.carda.awesome_notifications.core.listeners;
 
-import me.carda.awesome_notifications.core.models.returnedData.ActionReceived;
+import me.carda.awesome_notifications.core.models.actions.ActionReceived;
 
 public interface AwesomeActionEventListener {
     public void onNewActionReceived(String eventName, ActionReceived actionReceived);

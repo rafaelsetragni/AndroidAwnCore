@@ -1,10 +1,19 @@
 package me.carda.awesome_notifications.core.utils;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Iterator;
 import java.util.Objects;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import me.carda.awesome_notifications.core.AwesomeNotifications;
 
 public class StringUtils {
 
@@ -98,5 +107,10 @@ public class StringUtils {
             }
         }
         return buf.toString();
+    }
+
+    @NonNull
+    public String getInstallationId(Context context) {
+        return AwesomeNotifications.getPackageName(context);
     }
 }

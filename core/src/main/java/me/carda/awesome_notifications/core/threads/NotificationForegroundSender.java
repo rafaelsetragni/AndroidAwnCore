@@ -22,7 +22,7 @@ import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
 import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
 import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.models.NotificationModel;
-import me.carda.awesome_notifications.core.models.returnedData.NotificationReceived;
+import me.carda.awesome_notifications.core.models.actions.NotificationReceived;
 import me.carda.awesome_notifications.core.services.ForegroundService;
 import me.carda.awesome_notifications.core.utils.StringUtils;
 
@@ -163,7 +163,7 @@ public class NotificationForegroundSender extends NotificationThread<Notificatio
 
         if(AwesomeNotifications.debug){
             long elapsed = (endTime - startTime)/1000000;
-            Logger.d(TAG, "Notification displayed in "+elapsed+"ms");
+            Logger.getInstance().d(TAG, "Notification displayed in "+elapsed+"ms");
         }
 
         return notificationModel;

@@ -29,6 +29,7 @@ public class NotificationCrontabModel extends NotificationScheduleModel {
     public String crontabExpression;
     public List<Calendar> preciseSchedules;
 
+    @NonNull
     @Override
     @SuppressWarnings("unchecked")
     public NotificationCrontabModel fromMap(Map<String, Object> arguments) {

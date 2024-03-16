@@ -25,7 +25,7 @@ import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.managers.ScheduleManager;
 import me.carda.awesome_notifications.core.managers.StatusBarManager;
 import me.carda.awesome_notifications.core.models.NotificationModel;
-import me.carda.awesome_notifications.core.models.returnedData.NotificationReceived;
+import me.carda.awesome_notifications.core.models.actions.NotificationReceived;
 import me.carda.awesome_notifications.core.utils.IntegerUtils;
 import me.carda.awesome_notifications.core.utils.StringUtils;
 
@@ -199,7 +199,7 @@ public class NotificationSender extends NotificationThread<NotificationReceived>
             if(created) actionsTookList.add("created");
             if(displayed) actionsTookList.add("displayed");
 
-            Logger.d(TAG, "Notification "+stringUtils.join(actionsTookList.iterator(), " and ")+" in "+elapsed+"ms");
+            Logger.getInstance().d(TAG, "Notification "+stringUtils.join(actionsTookList.iterator(), " and ")+" in "+elapsed+"ms");
         }
 
         return receivedNotification;

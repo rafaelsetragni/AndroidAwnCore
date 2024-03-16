@@ -67,6 +67,21 @@ public class ExceptionFactory {
                         e));
     }
 
+    public AwesomeNotificationsException createNewAwesomeException(
+            @NonNull String className,
+            @NonNull String code,
+            @NonNull String detailedCode,
+            @NonNull Error e
+    ) {
+        return createNewAwesomeException(
+                className,
+                new AwesomeNotificationsException(
+                        code,
+                        String.format("%s", e.getLocalizedMessage()),
+                        detailedCode,
+                        e));
+    }
+
     public void registerNewAwesomeException(
             @NonNull String className,
             @NonNull String code,
