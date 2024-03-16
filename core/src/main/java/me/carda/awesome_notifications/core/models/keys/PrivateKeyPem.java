@@ -1,22 +1,30 @@
 package me.carda.awesome_notifications.core.models.keys;
 
+import static me.carda.awesome_notifications.core.Definitions.ENCRYPT_PEM_CONTENT;
+import static me.carda.awesome_notifications.core.Definitions.ENCRYPT_PEM_REFERENCE;
+
+import android.content.Context;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
 import java.security.PrivateKey;
+import java.util.HashMap;
 import java.util.Map;
 
 import me.carda.awesome_notifications.core.Definitions;
-import me.carda.awesome_notifications.core.models.attributes.AnemicAttribute;
+import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
+import me.carda.awesome_notifications.core.models.AbstractModel;
+import me.carda.awesome_notifications.core.models.KeyPairModel;
 
-public class PrivateKeyPem extends AnemicAttribute<String> {
-    public final String keyReference;
+public class PrivateKeyPem extends AbstractModel {
+    public String keyReference;
+    public String penContent;
     public PrivateKeyPem(
             @NonNull String configReference,
-            @NonNull String value
+            @NonNull String pemContent
     ) {
-        super(value);
+        this.penContent = pemContent;
         this.keyReference = configReference;
     }
 
@@ -32,15 +40,34 @@ public class PrivateKeyPem extends AnemicAttribute<String> {
     }
 
     @NonNull
-    public static PrivateKeyPem fromMap(
+    public PrivateKeyPem fromMap(
             @NonNull Map<String, Object> arguments
     ){
-        String keyReference = (String) arguments.get(Definitions.ENCRYPT_KEY_REFERENCE);
-        String value = (String) arguments.get(Definitions.ENCRYPT_VALUE);
+        keyReference = (String) arguments.get(Definitions.ENCRYPT_PEM_REFERENCE);
+        penContent = (String) arguments.get(Definitions.ENCRYPT_PEM_CONTENT);
+        return this;
+    }
 
-        assert keyReference != null;
-        assert value != null;
+    @Override
+    public Map<String, Object> toMap() {
+        return new HashMap<String, Object>(){{
+            put(ENCRYPT_PEM_REFERENCE, keyReference);
+            put(ENCRYPT_PEM_CONTENT, penContent);
+        }};
+    }
 
-        return new PrivateKeyPem(keyReference, value);
+    @Override
+    public String toJson() {
+        return templateToJson();
+    }
+
+    @Override
+    public KeyPairModel fromJson(String json){
+        return (KeyPairModel) super.templateFromJson(json);
+    }
+
+    @Override
+    public void validate(Context context) throws AwesomeNotificationsException {
+
     }
 }

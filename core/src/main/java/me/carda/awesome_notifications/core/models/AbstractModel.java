@@ -40,16 +40,18 @@ import me.carda.awesome_notifications.core.enumerators.NotificationPrivacy;
 import me.carda.awesome_notifications.core.enumerators.NotificationSource;
 import me.carda.awesome_notifications.core.enumerators.SafeEnum;
 import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsException;
+import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.utils.JsonUtils;
 import me.carda.awesome_notifications.core.utils.SerializableUtils;
 import me.carda.awesome_notifications.core.utils.StringUtils;
 
 public abstract class AbstractModel implements Cloneable {
+    static final String TAG = "AbstractModel";
     protected final SerializableUtils serializableUtils;
     protected final StringUtils stringUtils;
 
     public static Map<String, Object> defaultValues = new HashMap<>();
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     protected AbstractModel(){
         this.serializableUtils = SerializableUtils.getInstance();
@@ -81,7 +83,9 @@ public abstract class AbstractModel implements Cloneable {
             return (AbstractModel)this.clone();
         }
         catch (CloneNotSupportedException ex) {
-            ex.printStackTrace();
+            String message =  ex.getMessage();
+            if (message == null) message = "unknown";
+            Logger.getInstance().e(TAG, message, ex);
             return null;
         }
     }
@@ -150,7 +154,7 @@ public abstract class AbstractModel implements Cloneable {
     public void putDataOnSerializedMap(
             @NonNull String reference,
             @NonNull Map<String, Object> mapData,
-            @Nullable List value
+            @Nullable List<?> value
     ){
         if (value == null) return;
         if (value.isEmpty()) return;
@@ -182,20 +186,19 @@ public abstract class AbstractModel implements Cloneable {
     public void putDataOnSerializedMap(
             @NonNull String reference,
             @NonNull Map<String, Object> mapData,
-            @Nullable Map value
+            @Nullable Map<?,?> value
     ){
         if (value == null) return;
         if (value.isEmpty()) return;
 
         Map<String, Object> serializedMap = new HashMap<>();
-        for(Object objEntry : value.entrySet()) {
-            Map.Entry entry = (Map.Entry) objEntry;
-            Object innerValue = entry.getValue();
+        for(Map.Entry<?,?> objEntry : value.entrySet()) {
+            Object innerValue = objEntry.getValue();
             if (innerValue != null)
                 if (innerValue instanceof AbstractModel)
-                    serializedMap.put((String) entry.getKey(), ((AbstractModel)innerValue).toMap());
+                    serializedMap.put((String) objEntry.getKey(), ((AbstractModel)innerValue).toMap());
                 else
-                    serializedMap.put((String) entry.getKey(), innerValue);
+                    serializedMap.put((String) objEntry.getKey(), innerValue);
         }
 
         mapData.put(
@@ -458,11 +461,12 @@ public abstract class AbstractModel implements Cloneable {
             return defaultValue;
         }
 
-        List<String> dateStrings = (List<String>) value;
+        List<?> dateStrings = (List<?>) value;
         List<Calendar> calendars = new ArrayList<>();
 
-        for (String dateString : dateStrings) {
-            Calendar calendar = serializableUtils.deserializeCalendar(dateString);
+        for (Object object : dateStrings) {
+            if (!(object instanceof String)) continue;
+            Calendar calendar = serializableUtils.deserializeCalendar((String) object);
             calendars.add(calendar);
         }
         return calendars;
@@ -472,13 +476,20 @@ public abstract class AbstractModel implements Cloneable {
     public <T> List<T> getValueOrDefaultList(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
+            @NonNull Class<T> clazz,
             @Nullable List<T> defaultValue
     ) {
         Object value = map.get(reference);
         if (value == null) return defaultValue;
 
-        if (value instanceof List) {
-            return (List<T>) value;
+        if (value instanceof List<?>) {
+            final List<?> rawList = (List<?>) value;
+            final List<T> response = new ArrayList<>();
+            for (Object object : rawList) {
+                if (object == null || !clazz.isInstance(object)) continue;
+                response.add(clazz.cast(object));
+            }
+            return response;
         }
 
         if (value instanceof String) {
@@ -496,7 +507,14 @@ public abstract class AbstractModel implements Cloneable {
             String[] items = stringValue.split(",");
             List<T> resultList = new ArrayList<>();
             for (String item : items) {
-                resultList.add((T) item.trim());
+                try {
+                    T castedItem = clazz.cast(item.trim());
+                    resultList.add(castedItem);
+                } catch (ClassCastException e) {
+                    String message = e.getMessage();
+                    if (message == null) message = "unknown";
+                    Logger.getInstance().e(TAG, message, e);
+                }
             }
             return resultList.isEmpty() ? defaultValue : resultList;
         }

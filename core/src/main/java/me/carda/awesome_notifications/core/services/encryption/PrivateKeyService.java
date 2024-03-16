@@ -118,7 +118,7 @@ public class PrivateKeyService {
 
         try {
             // Remove the first and last lines and newlines
-            String pemContent = privateKeyPem.getValue()
+            String pemContent = privateKeyPem.penContent
                     .replaceAll("-----[A-Z ]+-----", "")
                     .replaceAll("\\s+", "");
             byte[] decoded = Base64.decode(pemContent, Base64.DEFAULT);

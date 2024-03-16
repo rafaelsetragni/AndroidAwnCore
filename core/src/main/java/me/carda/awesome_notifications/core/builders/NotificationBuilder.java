@@ -75,6 +75,7 @@ import me.carda.awesome_notifications.core.models.NotificationModel;
 import me.carda.awesome_notifications.core.models.actions.ActionReceived;
 import me.carda.awesome_notifications.core.services.encryption.EncryptionService;
 import me.carda.awesome_notifications.core.threads.NotificationSender;
+import me.carda.awesome_notifications.core.logs.Logger;
 import me.carda.awesome_notifications.core.utils.BitmapUtils;
 import me.carda.awesome_notifications.core.utils.BooleanUtils;
 import me.carda.awesome_notifications.core.utils.HtmlUtils;
@@ -815,10 +816,7 @@ public class NotificationBuilder {
         try {
             notificationModel.encryptedContent = EncryptionService
                     .getInstance()
-                    .encryptNotificationContent(
-                            context,
-                            notificationModel.decryptedContent
-                    );
+                    .encryptNotificationContent(notificationModel.decryptedContent);
         } catch (Exception e){
             ExceptionFactory
                     .getInstance()
@@ -849,10 +847,7 @@ public class NotificationBuilder {
         try {
             notificationModel.decryptedContent = EncryptionService
                     .getInstance()
-                    .decryptVisualProtectedContent(
-                            context,
-                            notificationModel.encryptedContent
-                    );
+                    .decryptVisualProtectedContent(notificationModel.encryptedContent);
         } catch (Exception e){
             ExceptionFactory
                     .getInstance()
@@ -881,7 +876,6 @@ public class NotificationBuilder {
             notificationModel.decryptedContent = EncryptionService
                     .getInstance()
                     .decryptPayloadContent(
-                            context,
                             notificationModel.encryptedContent,
                             notificationModel.decryptedContent
                     );
@@ -1389,7 +1383,9 @@ public class NotificationBuilder {
                     break;
             }
         } catch (Exception e) {
-            Logger.e(TAG, e.getMessage());
+            String message = e.getLocalizedMessage();
+            if (message == null) message = "";
+            Logger.getInstance().e(TAG, message);
         }
     }
 

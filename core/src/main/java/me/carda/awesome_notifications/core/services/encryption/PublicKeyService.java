@@ -119,7 +119,7 @@ public class PublicKeyService {
                 return cachedKey;
             }
 
-            String pemContent = publicKeyPem.getValue()
+            String pemContent = publicKeyPem.pemContent
                     .replaceAll("-----[A-Z ]+-----", "")
                     .replaceAll("\\s+", "");
             byte[] decoded = Base64.decode(pemContent, Base64.DEFAULT);

@@ -93,7 +93,7 @@ public class KeyConfigManager {
         return keyStorage
                 .write(
                         getPublicPemReference(privateKeyPem.keyReference),
-                        privateKeyPem.getValue(),
+                        privateKeyPem.toJson(),
                         String.class
                 );
     }
@@ -104,7 +104,7 @@ public class KeyConfigManager {
         return keyStorage
                 .write(
                         getPublicPemReference(publicKeyPem.keyReference),
-                        publicKeyPem.getValue(),
+                        publicKeyPem.toJson(),
                         String.class
                 );
     }

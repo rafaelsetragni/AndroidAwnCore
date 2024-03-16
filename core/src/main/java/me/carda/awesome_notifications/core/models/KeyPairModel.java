@@ -64,8 +64,8 @@ public class KeyPairModel extends AbstractModel {
     @Override
     public Map<String, Object> toMap() {
         return new HashMap<String, Object>(){{
-            put(NOTIFICATION_PRIVATE_KEY, privateKeyPem.getValue());
-            put(NOTIFICATION_PUBLIC_KEY, publicKeyPem.getValue());
+            put(NOTIFICATION_PRIVATE_KEY, privateKeyPem.toMap());
+            put(NOTIFICATION_PUBLIC_KEY, publicKeyPem.toMap());
         }};
     }
 

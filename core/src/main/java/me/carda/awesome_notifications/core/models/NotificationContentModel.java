@@ -166,10 +166,15 @@ public class NotificationContentModel extends AbstractModel {
 
         titleLocKey           = getValueOrDefault(arguments, Definitions.NOTIFICATION_TITLE_LOC_KEY, String.class, null);
         bodyLocKey            = getValueOrDefault(arguments, Definitions.NOTIFICATION_BODY_LOC_KEY, String.class, null);
-        titleLocArgs          = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_TITLE_LOC_ARGS, null);
-        bodyLocArgs           = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_BODY_LOC_ARGS, null);
+        titleLocArgs          = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_TITLE_LOC_ARGS, String.class, null);
+        bodyLocArgs           = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_BODY_LOC_ARGS, String.class, null);
 
-        messages = mapToMessages(getValueOrDefaultList(arguments, Definitions.NOTIFICATION_MESSAGES, null));
+        List<Map<String, Object>> messagesData = (List<Map<String, Object>>) arguments.get(Definitions.NOTIFICATION_MESSAGES);
+        if (messagesData != null) {
+            messages = mapToMessages(messagesData);
+        } else {
+            messages = new ArrayList<>();
+        }
 
         return this;
     }
