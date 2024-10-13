@@ -1552,6 +1552,26 @@ public class NotificationBuilder {
             if (contentModel.duration != null) {
                 metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, contentModel.duration * 1000);
             }
+            if (contentModel.largeIcon != null || contentModel.bigPicture != null) {
+                Bitmap albumArt = null;
+
+                if (contentModel.bigPicture != null) {
+                    albumArt = bitmapUtils.getBitmapFromSource(
+                            context,
+                            contentModel.bigPicture,
+                            false);
+                }
+                if (albumArt == null && contentModel.largeIcon != null) {
+                    albumArt = bitmapUtils.getBitmapFromSource(
+                            context,
+                            contentModel.largeIcon,
+                            false);
+                }
+
+                if (albumArt != null) {
+                    metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt);
+                }
+            }
             mediaSession.setMetadata(metadataBuilder.build());
 
             // using PlaybackState to update position
