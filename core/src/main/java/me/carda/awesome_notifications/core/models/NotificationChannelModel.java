@@ -27,8 +27,11 @@ public class NotificationChannelModel extends AbstractModel {
     private static final String TAG = "NotificationChannelModel";
 
     public String channelKey;
+
     public String channelName;
+
     public String channelDescription;
+
     public Boolean channelShowBadge;
 
     public String channelGroupKey;
@@ -36,28 +39,37 @@ public class NotificationChannelModel extends AbstractModel {
     public NotificationImportance importance;
 
     public Boolean playSound;
+
     public String soundSource;
+
     public DefaultRingtoneType defaultRingtoneType;
 
     public Boolean enableVibration;
+
     public long[] vibrationPattern;
 
     public Boolean enableLights;
+
     public Integer ledColor;
+
     public Integer ledOnMs;
+
     public Integer ledOffMs;
 
-    public String  groupKey;
+    public String groupKey;
+
     public GroupSort groupSort;
+
     public GroupAlertBehaviour groupAlertBehavior;
 
-    // Note: this is set on the Android to save details about the icon that should be used when re-hydrating delayed notifications when a device has been restarted.
     public Integer iconResourceId;
 
-    public String  icon;
+    public String icon;
+
     public Long defaultColor;
 
     public Boolean locked;
+
     public Boolean onlyAlertOnce;
 
     public Boolean criticalAlerts;

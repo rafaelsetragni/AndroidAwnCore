@@ -1,10 +1,13 @@
 package me.carda.awesome_notifications.core.managers;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -12,10 +15,8 @@ import android.service.notification.StatusBarNotification;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,6 +35,7 @@ import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsExcept
 import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
 import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
 import me.carda.awesome_notifications.core.models.NotificationModel;
+import me.carda.awesome_notifications.core.utils.JsonUtils;
 import me.carda.awesome_notifications.core.utils.StringUtils;
 
 public class StatusBarManager extends NotificationListenerService {
@@ -48,7 +50,7 @@ public class StatusBarManager extends NotificationListenerService {
 
     // ************** SINGLETON PATTERN ***********************
 
-    public StatusBarManager(){
+    public StatusBarManager() {
         this.stringUtils = StringUtils.getInstance();
         preferences = this.getSharedPreferences(
                 AwesomeNotifications.getPackageName(this) + "." + stringUtils.digestString(TAG),
@@ -60,7 +62,7 @@ public class StatusBarManager extends NotificationListenerService {
 
     private static StatusBarManager instance;
 
-    private StatusBarManager(@NonNull final Context context, @NonNull StringUtils stringUtils){
+    private StatusBarManager(@NonNull final Context context, @NonNull StringUtils stringUtils) {
         this.stringUtils = stringUtils;
 
         preferences = context.getSharedPreferences(
@@ -84,7 +86,8 @@ public class StatusBarManager extends NotificationListenerService {
     // The status bar cannot be closed from a notification action since Android 12
     // https://developer.android.com/about/versions/12/behavior-changes-all?hl=pt-br#close-system-dialogs-exceptions
     // https://developer.android.com/reference/android/content/Intent?hl=pt-br#ACTION_CLOSE_SYSTEM_DIALOGS
-    public void closeStatusBar(Context context){
+    @SuppressLint("MissingPermission")
+    public void closeStatusBar(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S /*Android 12*/) {
             Intent closingIntent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
             context.sendBroadcast(closingIntent);
@@ -98,9 +101,11 @@ public class StatusBarManager extends NotificationListenerService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager notificationManager = getNotificationManager(context);
             notificationManager.notify(notificationModel.content.id, notification);
-        }
-        else {
+        } else {
             NotificationManagerCompat notificationManagerCompat = getAdaptedOldNotificationManager(context);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
             notificationManagerCompat.notify(String.valueOf(notificationModel.content.id), notificationModel.content.id, notification);
         }
     }
@@ -118,7 +123,7 @@ public class StatusBarManager extends NotificationListenerService {
 
             // Dismiss the last notification group summary notification
             String groupKey = getIndexActiveNotificationGroup(idKey);
-            if (!groupKey.equals("")) {
+            if (!groupKey.isEmpty()) {
                 try {
                     dismissNotificationsByGroupKey(context, groupKey);
                 } catch (AwesomeNotificationsException ignored) {
@@ -181,7 +186,7 @@ public class StatusBarManager extends NotificationListenerService {
         List<String> activeGroupedNotifications =
                 activeNotificationsGroup.get(groupKey);
 
-        return activeGroupedNotifications == null || activeGroupedNotifications.size() == 0;
+        return activeGroupedNotifications == null || activeGroupedNotifications.isEmpty();
     }
 
     public boolean isFirstActiveOnChannelKey(String channelKey){
@@ -191,7 +196,7 @@ public class StatusBarManager extends NotificationListenerService {
         List<String> activeGroupedNotifications =
                 activeNotificationsChannel.get(channelKey);
 
-        return activeGroupedNotifications == null || activeGroupedNotifications.size() == 0;
+        return activeGroupedNotifications == null || activeGroupedNotifications.isEmpty();
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -280,12 +285,12 @@ public class StatusBarManager extends NotificationListenerService {
 
         SharedPreferences.Editor editor = preferences.edit();
 
-        if(!channelKey.equals("")){
+        if(!channelKey.isEmpty()){
             registerNotificationIdOnPreferences(editor, "channel", activeNotificationsChannel, channelKey, idKey);
             setIndexActiveNotificationChannel(editor, idKey, channelKey);
         }
 
-        if(!groupKey.equals("")){
+        if(!groupKey.isEmpty()){
             registerNotificationIdOnPreferences(editor, "group", activeNotificationsGroup, groupKey, idKey);
             setIndexActiveNotificationGroup(editor, idKey, groupKey);
         }
@@ -314,7 +319,7 @@ public class StatusBarManager extends NotificationListenerService {
 
         String idKey = String.valueOf(notificationId);
         String groupKey = getIndexActiveNotificationGroup(idKey);
-        if(!groupKey.equals("")){
+        if(!groupKey.isEmpty()){
 
             List<String> listToRemove = activeNotificationsGroup.get(groupKey);
             if(listToRemove != null){
@@ -325,20 +330,18 @@ public class StatusBarManager extends NotificationListenerService {
                         activeNotificationsGroup.put(groupKey, listToRemove);
                     updateActiveMapIntoPreferences(editor, "group", activeNotificationsGroup);
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        boolean isCollapsedLayout = isIndexCollapsedLayout(groupKey);
+                    boolean isCollapsedLayout = isIndexCollapsedLayout(groupKey);
 
-                        // For collapsed layouts, where the group has 1 left notification,
-                        // the missing summary orphan group should be removed
-                        if(!isCollapsedLayout && listToRemove.size() == 1)
-                            dismissNotification(context, Integer.parseInt(listToRemove.get(0)));
-                    }
+                    // For collapsed layouts, where the group has 1 left notification,
+                    // the missing summary orphan group should be removed
+                    if(!isCollapsedLayout && listToRemove.size() == 1)
+                        dismissNotification(context, Integer.parseInt(listToRemove.get(0)));
                 }
             }
         }
 
         String channelKey = getIndexActiveNotificationChannel(idKey);
-        if(!channelKey.equals("")){
+        if(!channelKey.isEmpty()){
             List<String> listToRemove = activeNotificationsChannel.get(channelKey);
             if(listToRemove != null){
                 listToRemove.remove(idKey);
@@ -371,7 +374,7 @@ public class StatusBarManager extends NotificationListenerService {
                 boolean hasGroup = false;
                 for(String idKey : removed){
                     String groupKey = getIndexActiveNotificationGroup(idKey);
-                    if(!groupKey.equals("")){
+                    if(!groupKey.isEmpty()){
                         List<String> listToRemove = activeNotificationsGroup.get(groupKey);
                         if(listToRemove != null){
                             hasGroup = true;
@@ -408,7 +411,7 @@ public class StatusBarManager extends NotificationListenerService {
                 boolean hasGroup = false;
                 for(String idKey : removed){
                     String channelKey = getIndexActiveNotificationChannel(idKey);
-                    if(!channelKey.equals("")){
+                    if(!channelKey.isEmpty()){
                         List<String> listToRemove = activeNotificationsChannel.get(channelKey);
                         if(listToRemove != null){
                             hasGroup = true;
@@ -435,22 +438,21 @@ public class StatusBarManager extends NotificationListenerService {
     }
 
     private void updateActiveMapIntoPreferences(SharedPreferences.Editor editor, String type, Map<String, List<String>> map) {
-        Gson gson = new Gson();
-        String mapString = gson.toJson(map);
+        JsonUtils<List<String>> jsonUtils = new JsonUtils<>();
+        String mapString = jsonUtils.toJson(map);
         editor.putString(type, mapString);
     }
 
     private Map<String, List<String>> loadNotificationIdFromPreferences(String type){
         String mapString = preferences.getString(type, null);
-
-        if (mapString == null){
-            return new HashMap<String, List<String>>();
+        if (mapString != null){
+            JsonUtils<List<String>> jsonUtils = new JsonUtils<>();
+            Object parsed = jsonUtils.fromJson(mapString);
+            if (parsed instanceof Map) {
+                return (Map<String, List<String>>) parsed;
+            }
         }
-
-        Gson gson = new Gson();
-        Type mapType = new TypeToken<HashMap<String, List<String>>>(){}.getType();
-
-        return gson.fromJson(mapString, mapType);
+        return new HashMap<>();
     }
 
     private void resetRegisters(){
@@ -463,7 +465,6 @@ public class StatusBarManager extends NotificationListenerService {
         activeNotificationsChannel.clear();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public Notification getAndroidNotificationById(Context context, int id){
         if(context != null){
 
@@ -481,7 +482,6 @@ public class StatusBarManager extends NotificationListenerService {
         return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public List<Notification> getAllAndroidActiveNotificationsByChannelKey(Context context, String channelKey){
         List<Notification> notifications = new ArrayList<>();
         if(context != null && !stringUtils.isNullOrEmpty(channelKey)){
@@ -508,7 +508,6 @@ public class StatusBarManager extends NotificationListenerService {
         return notifications;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public List<Notification> getAllAndroidActiveNotificationsByGroupKey(Context context, String groupKey){
         List<Notification> notifications = new ArrayList<>();
         if(context != null && !stringUtils.isNullOrEmpty(groupKey)){
@@ -563,10 +562,8 @@ public class StatusBarManager extends NotificationListenerService {
     }
 
     public Collection<Integer> getAllActiveNotificationIdsOnStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            List<Integer> activeIds = _getAllActiveIdsWithoutServices();
-            if (activeIds != null) return activeIds;
-        }
+        List<Integer> activeIds = _getAllActiveIdsWithoutServices();
+        if (activeIds != null) return activeIds;
 
         SQLitePrimitivesDB sqLitePrimitives = SQLitePrimitivesDB.getInstance(this);
         return sqLitePrimitives.getAllIntValues(
@@ -576,21 +573,11 @@ public class StatusBarManager extends NotificationListenerService {
     }
 
     public boolean isNotificationActiveOnStatusBar(int id) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return getIsNotificationActiveWithoutServices(id);
-        }
+        return getIsNotificationActiveWithoutServices(id);
 
-        SQLitePrimitivesDB sqLitePrimitives = SQLitePrimitivesDB.getInstance(this);
-        return sqLitePrimitives.getInt(
-                this,
-                Definitions.ACTIVE_NOTIFICATION_IDS,
-                Integer.toString(id),
-                -1
-        ) >= 0;
     }
 
     @Nullable
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private List<Integer> _getAllActiveIdsWithoutServices() {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         StatusBarNotification[] activeNotifications = notificationManager.getActiveNotifications();
@@ -602,7 +589,6 @@ public class StatusBarManager extends NotificationListenerService {
     }
 
     @NotNull
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean getIsNotificationActiveWithoutServices(int id) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         StatusBarNotification[] activeNotifications = notificationManager.getActiveNotifications();

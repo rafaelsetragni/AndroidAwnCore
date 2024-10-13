@@ -15,6 +15,7 @@ public class NotificationChannelGroupModel extends AbstractModel {
     private static final String TAG = "NotificationChannelGroupModel";
 
     public String channelGroupName;
+
     public String channelGroupKey;
 
     @Override

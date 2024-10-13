@@ -1,125 +1,145 @@
 package me.carda.awesome_notifications.core.utils;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
+import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;
 
+public class JsonUtils<T> {
 
-public class JsonUtils {
+    private static final String TAG = "JsonUtils";
 
-    public static Map<String, Object> fromJson(String jsonData){
-        Gson gson = new Gson();
-        Type type = new TypeToken<Map<String, Object>>(){}.getType();
-        return gson.fromJson(jsonData, type);
+    /**
+     * Converts a JSON string into a Map<String, T> or List<T> based on the structure of the JSON.
+     * Catches any exceptions and returns null if the operation fails.
+     * @param jsonData The JSON string to convert.
+     * @return A Map<String, T> or List<T> representing the JSON structure or null if an exception occurs.
+     */
+    public Object fromJson(String jsonData) {
+        try {
+            if (jsonData.trim().startsWith("{")) {
+                JSONObject jsonObject = new JSONObject(jsonData);
+                return jsonToMap(jsonObject);
+            } else if (jsonData.trim().startsWith("[")) {
+                JSONArray jsonArray = new JSONArray(jsonData);
+                return jsonToList(jsonArray);
+            }
+        } catch (JSONException e) {
+            ExceptionFactory
+                    .getInstance()
+                    .registerNewAwesomeException(
+                            TAG,
+                            ExceptionCode.CODE_INVALID_ARGUMENTS,
+                            ExceptionCode.DETAILED_INVALID_FORMAT,
+                            e);
+        }
+        return null;
     }
 
-    public static String toJson(Map<String, Object> model){
-        return chainOfResponsibilityToJson(model);
+    /**
+     * Converts a Map<String, T> or List<T> into a JSON string.
+     * Catches any exceptions and returns null if the operation fails.
+     * @param object The Map<String, T> or List<T> to convert.
+     * @return A JSON string representing the object or null if an exception occurs.
+     */
+    public String toJson(Object object) {
+        try {
+            if (object instanceof Map) {
+                JSONObject jsonObject = mapToJson((Map<String, T>) object);
+                return jsonObject.toString();
+            } else if (object instanceof List) {
+                JSONArray jsonArray = listToJson((List<T>) object);
+                return jsonArray.toString();
+            }
+        } catch (JSONException e) {
+            ExceptionFactory
+                    .getInstance()
+                    .registerNewAwesomeException(
+                            TAG,
+                            ExceptionCode.CODE_INVALID_ARGUMENTS,
+                            ExceptionCode.DETAILED_INVALID_FORMAT,
+                            e);
+        }
+        return null;
     }
 
-    // ************** CHAIN OF RESPONSIBILITY PATTERN ***********************************
+    // Helper method to convert JSONObject to Map<String, T>
+    private Map<String, T> jsonToMap(JSONObject jsonObject) throws JSONException {
+        Map<String, T> map = new HashMap<>();
+        Iterator<String> keys = jsonObject.keys();
 
-    @SuppressWarnings("unchecked")
-    static String chainOfResponsibilityToJson(@Nullable Object object){
+        while (keys.hasNext()) {
+            String key = keys.next();
+            Object value = jsonObject.get(key);
 
-        if(object == null) return "null";
-
-        StringBuilder text = new StringBuilder();
-
-        if(object instanceof Map<?, ?>){
-            text.append(chainOfResponsibilityMapToJson((Map<String, Object>) object));
-        } else
-        if(object instanceof List){
-            text.append(chainOfResponsibilityListToJson((List<Object>) object));
-        } else {
-            text.append(chainOfResponsibilityGenericsToJson(object));
+            if (value instanceof JSONObject) {
+                map.put(key, (T) jsonToMap((JSONObject) value));
+            } else if (value instanceof JSONArray) {
+                map.put(key, (T) jsonToList((JSONArray) value));
+            } else {
+                map.put(key, (T) value);
+            }
         }
 
-        return text.toString();
+        return map;
     }
 
-    static String chainOfResponsibilityMapToJson(@Nullable Map<String, Object> map){
+    // Helper method to convert JSONArray to List<T>
+    private List<T> jsonToList(JSONArray array) throws JSONException {
+        List<T> list = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            if (value instanceof JSONObject) {
+                list.add((T) jsonToMap((JSONObject) value));
+            } else if (value instanceof JSONArray) {
+                list.add((T) jsonToList((JSONArray) value));
+            } else {
+                list.add((T) value);
+            }
+        }
+        return list;
+    }
 
-        if(map == null) return "null";
+    // Helper method to convert Map<String, T> to JSONObject
+    private JSONObject mapToJson(Map<String, T> map) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
 
-        List<String> parameters = new ArrayList<>();
+        for (Map.Entry<String, T> entry : map.entrySet()) {
+            String key = entry.getKey();
+            T value = entry.getValue();
 
-        List<String> sortedKeys = new ArrayList<>(map.keySet());
-        Collections.sort(sortedKeys);
-
-        for (String key : sortedKeys) {
-            Object value = map.get(key);
-
-            StringBuilder text = new StringBuilder();
-            text.append("\"").append(key).append("\":");
-
-            if(value == null)
-                text.append("null");
-            else
-                text.append(chainOfResponsibilityToJson(value));
-
-            parameters.add(text.toString());
+            if (value instanceof Map) {
+                jsonObject.put(key, mapToJson((Map<String, T>) value));
+            } else if (value instanceof List) {
+                jsonObject.put(key, listToJson((List<T>) value));
+            } else {
+                jsonObject.put(key, value);
+            }
         }
 
-        return "{"+ joinList(parameters) + "}";
+        return jsonObject;
     }
 
-    static String chainOfResponsibilityListToJson(@Nullable List<Object> list){
-
-        if(list == null) return "null";
-
-        List<String> parameters = new ArrayList<>();
-        for (Object parameter : list)
-            parameters.add(chainOfResponsibilityGenericsToJson(parameter));
-
-        return "["+ joinList(parameters) + "]";
-    }
-
-    static String chainOfResponsibilityGenericsToJson(@Nullable Object generic){
-
-        if(generic == null) return "null";
-
-        // Gson is only trustable at this lower level
-        Gson gson = new Gson();
-
-        if((generic instanceof Map) || (generic instanceof List)){
-            return chainOfResponsibilityToJson(generic);
-        } else
-        if(generic instanceof Boolean){
-            return gson.toJson(generic);
-        } else
-        if(generic instanceof Number){
-            return gson.toJson(generic);
-        } else
-        if(generic instanceof String){
-            return gson.toJson(generic);
+    // Helper method to convert List<T> to JSONArray
+    private JSONArray listToJson(List<T> list) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+        for (T value : list) {
+            if (value instanceof Map) {
+                jsonArray.put(mapToJson((Map<String, T>) value));
+            } else if (value instanceof List) {
+                jsonArray.put(listToJson((List<T>) value));
+            } else {
+                jsonArray.put(value);
+            }
         }
-
-        return "null";
-    }
-
-    static String joinList(@Nullable List<String> input) {
-
-        if (input == null || input.size() <= 0) return "";
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        int cursor = 0; int size = input.size() - 1;
-        for (cursor = 0; cursor < size; cursor++)
-            stringBuilder
-                    .append(input.get(cursor))
-                    .append(",");
-
-        stringBuilder
-                .append(input.get(cursor));
-
-        return stringBuilder.toString();
+        return jsonArray;
     }
 }

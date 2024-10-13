@@ -9,8 +9,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,11 +88,6 @@ public class AwesomeNotifications
             packageName = context.getPackageName();
         return packageName;
     }
-
-    private Long createdCallbackHandle = 0L;
-    private Long displayedCallbackHandle = 0L;
-    private Long actionCallbackHandle = 0L;
-    private Long dismissedCallbackHandle = 0L;
 
     // ************************** CONSTRUCTOR ***********************************
 
@@ -322,11 +315,6 @@ public class AwesomeNotifications
         Context context = wContext.get();
         DefaultsManager defaultsManager = DefaultsManager.getInstance(wContext.get());
 
-        this.createdCallbackHandle = createdCallbackHandle;
-        this.displayedCallbackHandle = displayedCallbackHandle;
-        this.actionCallbackHandle = actionCallbackHandle;
-        this.dismissedCallbackHandle = dismissedCallbackHandle;
-
         defaultsManager.setCreatedCallbackDispatcher(context, createdCallbackHandle);
         defaultsManager.setDisplayedCallbackDispatcher(context, displayedCallbackHandle);
         defaultsManager.setActionCallbackDispatcher(context, actionCallbackHandle);
@@ -434,7 +422,7 @@ public class AwesomeNotifications
                             .createNewAwesomeException(
                                     TAG,
                                     ExceptionCode.CODE_INITIALIZATION_EXCEPTION,
-                                    "Invalid channel group: " + JsonUtils.toJson(channelData),
+                                    "Invalid channel group: " + channelData,
                                     ExceptionCode.DETAILED_INVALID_ARGUMENTS+".channelGroup.data");
                 }
             }
@@ -472,12 +460,11 @@ public class AwesomeNotifications
                             .createNewAwesomeException(
                                     TAG,
                                     ExceptionCode.CODE_INVALID_ARGUMENTS,
-                                    "Invalid channel: " + JsonUtils.toJson(channelData),
+                                    "Invalid channel: " + channelData,
                                     ExceptionCode.DETAILED_INVALID_ARGUMENTS + ".channel.data");
                 }
             }
             if (channelDataObject instanceof NotificationChannelModel) {
-                @SuppressWarnings("unchecked")
                 NotificationChannelModel channelModel = (NotificationChannelModel) channelDataObject;
                 channels.add(channelModel);
             }
@@ -847,7 +834,7 @@ public class AwesomeNotifications
     }
 
     public boolean isNotificationActiveOnStatusBar(
-            @NotNull int id
+            int id
     ) throws AwesomeNotificationsException
     {
         return StatusBarManager

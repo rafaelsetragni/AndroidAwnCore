@@ -12,10 +12,15 @@ public class NotificationLocalizationModel extends AbstractModel {
     private static final String TAG = "NotificationLocalization";
 
     public String title;
+
     public String body;
+
     public String summary;
+
     public String largeIcon;
+
     public String bigPicture;
+
     public Map<String, String> buttonLabels;
 
     @Override
@@ -25,7 +30,7 @@ public class NotificationLocalizationModel extends AbstractModel {
         summary      = getValueOrDefault(arguments, Definitions.NOTIFICATION_SUMMARY, String.class, null);
         largeIcon    = getValueOrDefault(arguments, Definitions.NOTIFICATION_LARGE_ICON, String.class, null);
         bigPicture   = getValueOrDefault(arguments, Definitions.NOTIFICATION_BIG_PICTURE, String.class, null);
-        buttonLabels = getValueOrDefaultMap(arguments, Definitions.NOTIFICATION_BUTTON_LABELS, null);
+        buttonLabels = getValueOrDefaultStringMap(arguments, Definitions.NOTIFICATION_BUTTON_LABELS, null);
 
         return this;
     }

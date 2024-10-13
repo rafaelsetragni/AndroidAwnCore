@@ -11,9 +11,13 @@ import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsExcept
 public class NotificationMessageModel extends AbstractModel {
 
     public String title;
+
     public String summary;
+
     public String message;
+
     public String largeIcon;
+
     public Long timestamp;
 
     public NotificationMessageModel(){}
