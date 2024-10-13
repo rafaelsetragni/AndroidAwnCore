@@ -58,7 +58,7 @@ public abstract class ScheduledNotificationReceiver extends AwesomeBroadcastRece
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.e(TAG, e.getMessage());
             }
         }
     }
