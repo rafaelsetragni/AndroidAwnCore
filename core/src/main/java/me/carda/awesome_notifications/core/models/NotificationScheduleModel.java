@@ -17,12 +17,16 @@ import me.carda.awesome_notifications.core.utils.CalendarUtils;
 public abstract class NotificationScheduleModel extends AbstractModel {
 
     public TimeZone timeZone;
+
     public Calendar createdDate;
 
     /// Specify false to deliver the notification one time. Specify true to reschedule the notification request each time the notification is delivered.
     public Boolean repeats;
+
     public Boolean allowWhileIdle;
+
     public Boolean preciseAlarm;
+
     public Integer delayTolerance;
 
     public NotificationScheduleModel() {}

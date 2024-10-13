@@ -162,7 +162,6 @@ public class NotificationBuilder {
         return actionReceived.shouldAutoDismiss && actionReceived.autoDismissible;
     }
 
-    @SuppressWarnings("unchecked")
     public Notification createNewAndroidNotification(Context context, Intent originalIntent, NotificationModel notificationModel) throws AwesomeNotificationsException {
 
         NotificationChannelModel channelModel =
@@ -224,8 +223,10 @@ public class NotificationBuilder {
         Intent intent = new Intent(context, targetClass);
 
         // Preserves analytics extras
-        if(originalIntent != null)
-            intent.putExtras(originalIntent.getExtras());
+        if(originalIntent != null) {
+            Bundle oldExtras = originalIntent.getExtras();
+            if (oldExtras != null) intent.putExtras(oldExtras);
+        }
 
         intent.setAction(ActionReference);
 
@@ -255,8 +256,10 @@ public class NotificationBuilder {
         Intent intent = new Intent(context, targetAction);
 
         // Preserves analytics extras
-        if(originalIntent != null)
-            intent.putExtras(originalIntent.getExtras());
+        if(originalIntent != null) {
+            Bundle oldExtras = originalIntent.getExtras();
+            if (oldExtras != null) intent.putExtras(oldExtras);
+        }
 
         intent.setAction(ActionReference);
 
@@ -300,17 +303,13 @@ public class NotificationBuilder {
                             context,
                             notificationModel.content.id,
                             actionIntent,
-                            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ?
-                                    PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT :
-                                    PendingIntent.FLAG_UPDATE_CURRENT)
+                        PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT)
                 :
                 PendingIntent.getBroadcast(
                             context,
                             notificationModel.content.id,
                             actionIntent,
-                            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ?
-                                    PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT :
-                                    PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private PendingIntent getPendingDismissIntent(
@@ -333,9 +332,7 @@ public class NotificationBuilder {
                 context,
                 notificationModel.content.id,
                 deleteIntent,
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) ?
-                        PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT :
-                        PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
     }
 
@@ -477,11 +474,14 @@ public class NotificationBuilder {
                 actionModel.buttonKeyPressed = intent.getStringExtra(Definitions.NOTIFICATION_BUTTON_KEY);
 
                 Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-                if (remoteInput != null)
-                    actionModel.buttonKeyInput = remoteInput.getCharSequence(
-                            actionModel.buttonKeyPressed).toString();
-                else
-                    actionModel.buttonKeyInput = "";
+                actionModel.buttonKeyInput = "";
+                if (remoteInput != null) {
+                    CharSequence buttonCharSequence = remoteInput.getCharSequence(
+                            actionModel.buttonKeyPressed);
+                    if (buttonCharSequence != null) {
+                        actionModel.buttonKeyInput = buttonCharSequence.toString();
+                    }
+                }
 
                 if (
                     !stringUtils.isNullOrEmpty(actionModel.buttonKeyInput)
@@ -537,13 +537,12 @@ public class NotificationBuilder {
         return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
     public void wakeUpScreen(Context context){
 
         String appName = getAppName(context);
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 
-        boolean isScreenOn = Build.VERSION.SDK_INT >= 20 ? pm.isInteractive() : pm.isScreenOn(); // check if screen is on
+        boolean isScreenOn = pm.isInteractive(); // check if screen is on
         if (!isScreenOn) {
             PowerManager.WakeLock wl =
                 pm.newWakeLock(
@@ -575,15 +574,13 @@ public class NotificationBuilder {
     }
 
     public void ensureCriticalAlert(Context context) throws AwesomeNotificationsException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            if (PermissionManager.getInstance().isDndOverrideAllowed(context)) {
-                if (!permissionManager.isSpecifiedPermissionGloballyAllowed(context, NotificationPermission.CriticalAlert)){
-                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P /*Android 9*/) {
-                        NotificationManager.Policy policy = new NotificationManager.Policy(PRIORITY_CATEGORY_ALARMS, 0, 0);
-                        notificationManager.setNotificationPolicy(policy);
-                    }
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (PermissionManager.getInstance().isDndOverrideAllowed(context)) {
+            if (!permissionManager.isSpecifiedPermissionGloballyAllowed(context, NotificationPermission.CriticalAlert)){
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P /*Android 9*/) {
+                    NotificationManager.Policy policy = new NotificationManager.Policy(PRIORITY_CATEGORY_ALARMS, 0, 0);
+                    notificationManager.setNotificationPolicy(policy);
                 }
             }
         }
@@ -725,9 +722,9 @@ public class NotificationBuilder {
 
     private Integer getLayoutColor(NotificationModel notificationModel, NotificationChannelModel channel) {
         Integer layoutColorValue;
-        layoutColorValue = IntegerUtils.extractInteger(notificationModel.content.color, channel.defaultColor);
-        layoutColorValue = IntegerUtils.extractInteger(layoutColorValue, Color.BLACK);
-        return layoutColorValue;
+        layoutColorValue = IntegerUtils.extractInteger(notificationModel.content.color, Color.BLACK);
+        if (layoutColorValue != Color.BLACK) return layoutColorValue;
+        return IntegerUtils.extractInteger(channel.defaultColor, Color.BLACK);
     }
 
     private void setImportance(NotificationChannelModel channel, NotificationCompat.Builder builder) {
@@ -1199,18 +1196,14 @@ public class NotificationBuilder {
                 if (channelModel.iconResourceId != null) {
                     builder.setSmallIcon(channelModel.iconResourceId);
                 } else {
-                    try {
-                        int defaultResource = context.getResources().getIdentifier(
-                            "ic_launcher",
-                            "mipmap",
-                            AwesomeNotifications.getPackageName(context)
-                        );
+                    int defaultResource = context.getResources().getIdentifier(
+                        "ic_launcher",
+                        "mipmap",
+                        AwesomeNotifications.getPackageName(context)
+                    );
 
-                        if (defaultResource > 0) {
-                            builder.setSmallIcon(defaultResource);
-                        }
-                    } catch (Exception e){
-                        e.printStackTrace();
+                    if (defaultResource > 0) {
+                        builder.setSmallIcon(defaultResource);
                     }
                 }
             } else {
@@ -1420,7 +1413,6 @@ public class NotificationBuilder {
 
     public static final ConcurrentHashMap<String, List<NotificationMessageModel>> messagingQueue = new ConcurrentHashMap<String, List<NotificationMessageModel>>();
 
-    @SuppressWarnings("unchecked")
     private Boolean setMessagingLayout(Context context, boolean isGrouping, NotificationContentModel contentModel, NotificationChannelModel channelModel, NotificationCompat.Builder builder) throws AwesomeNotificationsException {
         @NonNull final String username = contentModel.title;
         @Nullable final String groupName = contentModel.summary;
@@ -1528,7 +1520,7 @@ public class NotificationBuilder {
                 .isFirstActiveOnGroupKey(contentModel.groupKey)
         ){
             List<String> lastIds = StatusBarManager.getInstance(context).activeNotificationsGroup.get(contentModel.groupKey);
-            if(lastIds != null && lastIds.size() > 0)
+            if(lastIds != null && !lastIds.isEmpty())
                 contentModel.id = Integer.parseInt(lastIds.get(0));
         }
 
@@ -1559,6 +1551,26 @@ public class NotificationBuilder {
             }
             if (contentModel.duration != null) {
                 metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, contentModel.duration * 1000);
+            }
+            if (contentModel.largeIcon != null || contentModel.bigPicture != null) {
+                Bitmap albumArt = null;
+
+                if (contentModel.bigPicture != null) {
+                    albumArt = bitmapUtils.getBitmapFromSource(
+                            context,
+                            contentModel.bigPicture,
+                            false);
+                }
+                if (albumArt == null && contentModel.largeIcon != null) {
+                    albumArt = bitmapUtils.getBitmapFromSource(
+                            context,
+                            contentModel.largeIcon,
+                            false);
+                }
+
+                if (albumArt != null) {
+                    metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt);
+                }
             }
             mediaSession.setMetadata(metadataBuilder.build());
 

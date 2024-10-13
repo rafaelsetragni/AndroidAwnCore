@@ -2,6 +2,7 @@ package me.carda.awesome_notifications.core.models;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Calendar;
@@ -20,8 +21,8 @@ public class NotificationIntervalModel extends NotificationScheduleModel {
 
     public Integer interval;
 
+    @NonNull
     @Override
-    @SuppressWarnings("unchecked")
     public NotificationIntervalModel fromMap(Map<String, Object> arguments) {
         super.fromMap(arguments);
 

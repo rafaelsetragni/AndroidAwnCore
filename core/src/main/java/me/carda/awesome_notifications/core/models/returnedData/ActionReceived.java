@@ -14,16 +14,21 @@ import me.carda.awesome_notifications.core.utils.CalendarUtils;
 public class ActionReceived extends NotificationReceived {
 
     public String buttonKeyPressed;
+
     public String buttonKeyInput;
 
     // The value autoDismiss must return as original. Because
     // of that, this variable is being used as temporary
     public boolean shouldAutoDismiss = true;
+
     public Boolean isAuthenticationRequired = true;
 
     public NotificationLifeCycle actionLifeCycle;
+
     public NotificationLifeCycle dismissedLifeCycle;
+
     public Calendar actionDate;
+
     public Calendar dismissedDate;
 
     public ActionReceived(){}

@@ -6,18 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.common.primitives.Longs;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -47,9 +41,8 @@ import me.carda.awesome_notifications.core.utils.StringUtils;
 public abstract class AbstractModel implements Cloneable {
     protected final SerializableUtils serializableUtils;
     protected final StringUtils stringUtils;
-
+    protected final static  JsonUtils<Object> jsonUtils = new JsonUtils<>();
     public static Map<String, Object> defaultValues = new HashMap<>();
-    private Gson gson = new Gson();
 
     protected AbstractModel(){
         this.serializableUtils = SerializableUtils.getInstance();
@@ -67,13 +60,18 @@ public abstract class AbstractModel implements Cloneable {
     public abstract AbstractModel fromJson(String json);
 
     protected String templateToJson(){
-        return JsonUtils.toJson(this.toMap());
+        return jsonUtils.toJson(this.toMap());
     }
 
     protected AbstractModel templateFromJson(String json) {
         if(json == null || json.isEmpty()) return null;
-        Map<String, Object> map = JsonUtils.fromJson(json);
-        return this.fromMap(map);
+        Object object = jsonUtils.fromJson(json);
+        if (object instanceof Map) {
+            Map map = (Map) object;
+            if(map.isEmpty()) return null;
+            return this.fromMap(map);
+        }
+        return null;
     }
 
     public AbstractModel getClone () {
@@ -663,57 +661,158 @@ public abstract class AbstractModel implements Cloneable {
         return calendars;
     }
 
-    public <T> List<T> getValueOrDefaultList(
+    public List<String> getValueOrDefaultListString(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
-            @Nullable List<T> defaultValue
+            @Nullable List<String> defaultValue
+    ) {
+        Object value = map.get(reference);
+
+        // Initialize JsonUtils for parsing
+        JsonUtils<Object> jsonUtils = new JsonUtils<>();
+
+        // If the value is a JSON string, try to parse it as a List
+        if (value instanceof String) {
+            String stringValue = (String) value;
+
+            // Handle JSON arrays represented as a string
+            if (stringValue.startsWith("[")) {
+                Object parsedObject = jsonUtils.fromJson(stringValue);
+
+                // Check if the parsed object is a List of Strings
+                if (parsedObject instanceof List) {
+                    List<?> list = (List<?>) parsedObject;
+
+                    // Ensure that the list contains only Strings
+                    if (!list.isEmpty() && list.get(0) instanceof String) {
+                        return (List<String>) list;
+                    }
+                }
+            }
+
+            // Handle comma-separated string values
+            String[] items = stringValue.split(",");
+            List<String> resultList = new ArrayList<>();
+            for (String item : items) {
+                resultList.add(item.trim());
+            }
+
+            return resultList.isEmpty() ? defaultValue : resultList;
+        }
+
+        // If the value is already a List, return it directly after type checking
+        if (value instanceof List) {
+            List<?> list = (List<?>) value;
+
+            // Ensure the list contains Strings
+            if (!list.isEmpty() && list.get(0) instanceof String) {
+                return (List<String>) list;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    public List<Map<String, Object>> getValueOrDefaultListMap(
+            @NonNull Map<String, Object> map,
+            @NonNull String reference,
+            @Nullable List<Map<String, Object>> defaultValue
     ) {
         Object value = map.get(reference);
         if (value == null) return defaultValue;
 
+        // If the value is already a List, return it directly after type checking
         if (value instanceof List) {
-            return (List<T>) value;
+            List<?> list = (List<?>) value;
+
+            // Ensure the list contains Map<String, Object>
+            if (!list.isEmpty() && list.get(0) instanceof Map) {
+                return (List<Map<String, Object>>) list;
+            } else {
+                return defaultValue;
+            }
         }
 
+        // If the value is a JSON string, convert it to a List<Map<String, Object>>
         if (value instanceof String) {
             String stringValue = (String) value;
+
+            // Handling JSON list
             if (stringValue.startsWith("[")) {
-                // Handling the case where the value is already a list
-                Type listType = new TypeToken<List<T>>(){}.getType();
-                try {
-                    List<T> list = gson.fromJson(stringValue, listType);
-                    return list != null ? list : defaultValue;
-                } catch (Exception e) {
-                    return defaultValue;
+                JsonUtils<Object> jsonUtils = new JsonUtils<>();
+                Object parsedObject = jsonUtils.fromJson(stringValue);
+
+                // Ensure the parsed object is a List of Maps
+                if (parsedObject instanceof List) {
+                    List<?> list = (List<?>) parsedObject;
+
+                    // Ensure the list contains Map<String, Object>
+                    if (!list.isEmpty() && list.get(0) instanceof Map) {
+                        return (List<Map<String, Object>>) list;
+                    }
                 }
             }
-            String[] items = stringValue.split(",");
-            List<T> resultList = new ArrayList<>();
-            for (String item : items) {
-                resultList.add((T) item.trim());
-            }
-            return resultList.isEmpty() ? defaultValue : resultList;
+            return defaultValue;
         }
+
         return defaultValue;
     }
 
-    public <T, K> Map<T, K> getValueOrDefaultMap(
+    public Map<String, Object> getValueOrDefaultMap(
             @NonNull Map<String, Object> map,
             @NonNull String reference,
-            @Nullable Map<T, K> defaultValue
+            @Nullable Map<String, Object> defaultValue
     ) {
+        // Retrieve the value associated with the reference key
         Object value = map.get(reference);
-        if (value == null) {
-            return defaultValue;
+
+        // If the value is a string, try to parse it as a JSON object
+        if (value instanceof String) {
+            JsonUtils<Object> jsonUtils = new JsonUtils<>();
+            // Parse the string to an object
+            value = jsonUtils.fromJson((String) value);
         }
 
-        Type mapType = new TypeToken<Map<T, K>>(){}.getType();
-        try {
-            Map<T, K> mapObj = gson.fromJson(gson.toJson(value), mapType);
-            return mapObj != null ? mapObj : defaultValue;
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof Map) {
+            return (Map<String, Object>) value;
         }
+
+        // If the value is not a string or the parsed object is not a map, return the default value
+        return defaultValue;
+    }
+
+    public Map<String, String> getValueOrDefaultStringMap(
+            @NonNull Map<String, Object> map,
+            @NonNull String reference,
+            @Nullable Map<String, String> defaultValue
+    ) {
+        // Retrieve the value associated with the reference key
+        Object value = map.get(reference);
+
+        // If the value is a string, try to parse it as a JSON object
+        if (value instanceof String) {
+            JsonUtils<Object> jsonUtils = new JsonUtils<>();
+            // Parse the string to an object
+            value = jsonUtils.fromJson((String) value);
+        }
+
+        if (value instanceof Map) {
+            //noinspection unchecked
+            Map<String, Object> mapObj = (Map<String, Object>) value;
+
+            // Convert the parsed map into a Map<String, String>
+            Map<String, String> stringMap = new HashMap<>();
+            for (Map.Entry<String, Object> entry : mapObj.entrySet()) {
+                if (entry.getValue() instanceof String) {
+                    stringMap.put(entry.getKey(), (String) entry.getValue());
+                }
+            }
+
+            return stringMap.isEmpty() ? defaultValue : stringMap;
+        }
+
+        // If the value is not a string or the parsed object is not a map, return the default value
+        return defaultValue;
     }
 
     public abstract void validate(Context context) throws AwesomeNotificationsException;
