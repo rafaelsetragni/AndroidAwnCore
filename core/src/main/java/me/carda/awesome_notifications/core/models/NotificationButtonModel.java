@@ -16,15 +16,25 @@ public class NotificationButtonModel extends AbstractModel {
     private static final String TAG = "NotificationButtonModel";
 
     public String key;
+
     public String icon;
+
     public String label;
+
     public Integer color;
+
     public Boolean enabled;
+
     public Boolean requireInputText = false;
+
     public Boolean isAuthenticationRequired = false;
+
     public Boolean autoDismissible = true;
+
     public Boolean showInCompactView = false;
+
     public Boolean isDangerousOption = false;
+
     public ActionType actionType;
 
     @Override

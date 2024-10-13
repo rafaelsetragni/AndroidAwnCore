@@ -2,7 +2,6 @@ package me.carda.awesome_notifications.core.models;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
@@ -14,8 +13,11 @@ import me.carda.awesome_notifications.core.exceptions.AwesomeNotificationsExcept
 public class DefaultsModel extends AbstractModel {
 
     public String appIcon;
+
     public String silentDataCallback = "0";
+
     public String reverseDartCallback = "0";
+
     public String backgroundHandleClass;
 
     public DefaultsModel(){}

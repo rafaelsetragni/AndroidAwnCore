@@ -21,31 +21,41 @@ public class NotificationCalendarModel extends NotificationScheduleModel {
 
     /// Field number for get and set indicating the era, e.g., AD or BC in the Julian calendar
     public Integer era;
+
     /// Field number for get and set indicating the year.
     public Integer year;
+
     /// Field number for get and set indicating the month.
     public Integer month;
+
     /// Field number for get and set indicating the day number within the current year (1-12).
     public Integer day;
+
     /// Field number for get and set indicating the hour of the day (0-23).
     public Integer hour;
+
     /// Field number for get and set indicating the minute within the hour (0-59).
     public Integer minute;
+
     /// Field number for get and set indicating the second within the minute (0-59).
     public Integer second;
+
     /// Field number for get and set indicating the millisecond within the second.
     public Integer millisecond;
+
     /// Field number for get and set indicating the day of the week.
     public Integer weekday;
+
     /// Field number for get and set indicating the count of weeks of the month.
     public Integer weekOfMonth;
+
     /// Field number for get and set indicating the weeks of the year.
     public Integer weekOfYear;
 
+    /// Field number for get and set indicating the name of the weekday.
     private String weekdayName;
 
     @Override
-    @SuppressWarnings("unchecked")
     public NotificationCalendarModel fromMap(Map<String, Object> arguments) {
         super.fromMap(arguments);
 

@@ -12,9 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
@@ -60,7 +58,7 @@ public class SQLitePrimitivesDB extends SQLiteOpenHelper {
                     .getInstance()
                     .registerNewAwesomeException(
                         "SQLitePrimitivesDB",
-                        ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                        ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                         "SQLitePrimitivesDB could not be correctly initialized: "+ e.getMessage(),
                         ExceptionCode.DETAILED_INITIALIZATION_FAILED+".SQLitePrimitivesDB");
             }
@@ -77,7 +75,7 @@ public class SQLitePrimitivesDB extends SQLiteOpenHelper {
                     .getInstance()
                     .registerNewAwesomeException(
                             "SQLitePrimitivesDB",
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                             "Could not delivery writable database: "+ e.getMessage(),
                             ExceptionCode.DETAILED_INITIALIZATION_FAILED+".SQLitePrimitivesDB");
         }
@@ -93,7 +91,7 @@ public class SQLitePrimitivesDB extends SQLiteOpenHelper {
                     .getInstance()
                     .registerNewAwesomeException(
                             "SQLitePrimitivesDB",
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                             "Could not delivery readable database: "+ e.getMessage(),
                             ExceptionCode.DETAILED_INITIALIZATION_FAILED+".SQLitePrimitivesDB");
         }

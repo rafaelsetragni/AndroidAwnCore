@@ -3,15 +3,12 @@ plugins {
 }
 
 android {
-    signingConfigs {
-        release {
-        }
-    }
-    compileSdkVersion 34
+    namespace "me.carda.awesome_notifications.core.example"
 
     defaultConfig {
         applicationId "me.carda.awesome_notifications.example"
-        minSdkVersion 21
+        minSdkVersion 23
+        compileSdkVersion 34
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"
@@ -21,8 +18,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -33,11 +30,11 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation project(path: ':core')
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }

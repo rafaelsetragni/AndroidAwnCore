@@ -42,7 +42,7 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .registerNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                             "SharedManager could not be correctly initialized: "+ e.getMessage(),
                             ExceptionCode.DETAILED_INITIALIZATION_FAILED+"."+reference);
         }
@@ -62,9 +62,9 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                             "SharedPreferences.getSharedPreferences is not available",
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".getSharedInstance");
+                            ExceptionCode.DETAILED_REPOSITORY +".getSharedInstance");
         }
 
         return preferences;
@@ -87,8 +87,8 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".commit",
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
+                            ExceptionCode.DETAILED_REPOSITORY +".commit",
                             e);
         }
     }
@@ -117,8 +117,8 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".getAllObjects",
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
+                            ExceptionCode.DETAILED_REPOSITORY +".getAllObjects",
                             e);
         }
 
@@ -153,8 +153,8 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".get",
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
+                            ExceptionCode.DETAILED_REPOSITORY +".get",
                             exception);
         }
     }
@@ -183,8 +183,8 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".set",
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
+                            ExceptionCode.DETAILED_REPOSITORY +".set",
                             e);
         }
     }
@@ -211,8 +211,8 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".remove",
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
+                            ExceptionCode.DETAILED_REPOSITORY +".remove",
                             e);
         }
     }
@@ -235,8 +235,8 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".removeAll",
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
+                            ExceptionCode.DETAILED_REPOSITORY +".removeAll",
                             e);
         }
     }
@@ -247,9 +247,9 @@ public class SharedManager<T extends AbstractModel> {
                     .getInstance()
                     .createNewAwesomeException(
                             TAG,
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                             "Android function editor.commit failed",
-                            ExceptionCode.DETAILED_SHARED_PREFERENCES+".commitAsync");
+                            ExceptionCode.DETAILED_REPOSITORY +".commitAsync");
         /*
         new AsyncTask<Void, Void, Boolean>() {
             @Override

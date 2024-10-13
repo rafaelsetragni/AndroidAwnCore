@@ -25,12 +25,15 @@ public class NotificationCrontabModel extends NotificationScheduleModel {
     private static final String TAG = "NotificationCrontabModel";
 
     public Calendar initialDateTime;
+
     public Calendar expirationDateTime;
+
     public String crontabExpression;
+
     public List<Calendar> preciseSchedules;
 
+    @NonNull
     @Override
-    @SuppressWarnings("unchecked")
     public NotificationCrontabModel fromMap(Map<String, Object> arguments) {
         super.fromMap(arguments);
 

@@ -51,7 +51,7 @@ public class SQLiteSchedulesDB extends SQLiteOpenHelper {
                     .getInstance()
                     .registerNewAwesomeException(
                         "SQLiteSchedulesDB",
-                        ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                        ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                         "SQLiteSchedulesDB could not be correctly initialized: "+ e.getMessage(),
                         ExceptionCode.DETAILED_INITIALIZATION_FAILED+".SQLiteSchedulesDB");
             }
@@ -73,7 +73,7 @@ public class SQLiteSchedulesDB extends SQLiteOpenHelper {
                 .getInstance()
                 .registerNewAwesomeException(
                     "SQLiteSchedulesDB",
-                    ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                    ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                     "Writable database could not be delivered: "+ e.getMessage(),
                     ExceptionCode.DETAILED_INITIALIZATION_FAILED+".SQLiteSchedulesDB");
         }
@@ -90,7 +90,7 @@ public class SQLiteSchedulesDB extends SQLiteOpenHelper {
                     .getInstance()
                     .registerNewAwesomeException(
                             "SQLiteSchedulesDB",
-                            ExceptionCode.CODE_SHARED_PREFERENCES_NOT_AVAILABLE,
+                            ExceptionCode.CODE_SQLITE_NOT_AVAILABLE,
                             "Readable database could not be delivered: "+ e.getMessage(),
                             ExceptionCode.DETAILED_INITIALIZATION_FAILED+".SQLiteSchedulesDB");
         }

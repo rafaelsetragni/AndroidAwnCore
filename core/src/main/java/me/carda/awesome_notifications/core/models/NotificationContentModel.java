@@ -34,60 +34,99 @@ public class NotificationContentModel extends AbstractModel {
     private static final String TAG = "NotificationContentModel";
 
     public boolean isRefreshNotification = false;
+
     public boolean isRandomId = false;
 
     public Integer id;
+
     public String channelKey;
+
     public String title;
+
     public String body;
+
     public String summary;
+
     public Boolean showWhen;
+
     public List<NotificationMessageModel> messages;
+
     public Map<String, String> payload;
+
     public String groupKey;
+
     public String customSound;
+
     public Boolean playSound;
+
     public String icon;
+
     public String largeIcon;
+
     public Boolean locked;
+
     public String bigPicture;
+
     public Boolean wakeUpScreen;
+
     public Boolean fullScreenIntent;
+
     public Boolean hideLargeIconOnExpand;
+
     public Boolean autoDismissible;
+
     public Boolean displayOnForeground;
+
     public Boolean displayOnBackground;
+
     public Integer chronometer;
+
     public Integer color;
+
     public Integer backgroundColor;
+
     public Float progress;
+
     public Integer badge;
+
     public Integer timeoutAfter;
+
     public String ticker;
+
     public Integer duration;
+
     public Float playbackSpeed;
+
     public NotificationPlayState playState;
 
     public String titleLocKey;
+
     public String bodyLocKey;
+
     public List<String> titleLocArgs;
+
     public List<String> bodyLocArgs;
 
     public Boolean roundedLargeIcon;
+
     public Boolean roundedBigPicture;
 
     public ActionType actionType;
 
     public NotificationPrivacy privacy;
+
     public String privateMessage;
 
     public NotificationLayout notificationLayout;
 
     public NotificationSource createdSource;
+
     public NotificationLifeCycle createdLifeCycle;
+
     public Calendar createdDate;
 
     public NotificationLifeCycle displayedLifeCycle;
+
     public Calendar displayedDate;
 
     public NotificationCategory category;
@@ -150,7 +189,7 @@ public class NotificationContentModel extends AbstractModel {
         icon                  = getValueOrDefault(arguments, Definitions.NOTIFICATION_ICON, String.class, null);
         largeIcon             = getValueOrDefault(arguments, Definitions.NOTIFICATION_LARGE_ICON, String.class, null);
         bigPicture            = getValueOrDefault(arguments, Definitions.NOTIFICATION_BIG_PICTURE, String.class, null);
-        payload               = getValueOrDefaultMap(arguments, Definitions.NOTIFICATION_PAYLOAD, null);
+        payload               = getValueOrDefaultStringMap(arguments, Definitions.NOTIFICATION_PAYLOAD, null);
         autoDismissible       = getValueOrDefault(arguments, Definitions.NOTIFICATION_AUTO_DISMISSIBLE, Boolean.class, true);
         progress              = getValueOrDefault(arguments, Definitions.NOTIFICATION_PROGRESS, Float.class, null);
         badge                 = getValueOrDefault(arguments, Definitions.NOTIFICATION_BADGE, Integer.class, null);
@@ -166,10 +205,10 @@ public class NotificationContentModel extends AbstractModel {
 
         titleLocKey           = getValueOrDefault(arguments, Definitions.NOTIFICATION_TITLE_LOC_KEY, String.class, null);
         bodyLocKey            = getValueOrDefault(arguments, Definitions.NOTIFICATION_BODY_LOC_KEY, String.class, null);
-        titleLocArgs          = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_TITLE_LOC_ARGS, null);
-        bodyLocArgs           = getValueOrDefaultList(arguments, Definitions.NOTIFICATION_BODY_LOC_ARGS, null);
+        titleLocArgs          = getValueOrDefaultListString(arguments, Definitions.NOTIFICATION_TITLE_LOC_ARGS, null);
+        bodyLocArgs           = getValueOrDefaultListString(arguments, Definitions.NOTIFICATION_BODY_LOC_ARGS, null);
 
-        messages = mapToMessages(getValueOrDefaultList(arguments, Definitions.NOTIFICATION_MESSAGES, null));
+        messages = mapToMessages(getValueOrDefaultListMap(arguments, Definitions.NOTIFICATION_MESSAGES, null));
 
         return this;
     }
@@ -253,7 +292,7 @@ public class NotificationContentModel extends AbstractModel {
         return returnedMessages;
     }
 
-    public static List<NotificationMessageModel> mapToMessages(@Nullable List<Map> messagesData){
+    public static List<NotificationMessageModel> mapToMessages(@Nullable List<Map<String, Object>> messagesData){
         List<NotificationMessageModel> messages = new ArrayList<>();
         if(!ListUtils.isNullOrEmpty(messagesData))
             for(Map<String, Object> messageData : messagesData){
