@@ -13,10 +13,6 @@ android {
         namespace 'me.carda.awesome_notifications.core'
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     defaultConfig {
         minSdk 23
         compileSdk 34
