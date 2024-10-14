@@ -13,10 +13,6 @@ android {
         namespace 'me.carda.awesome_notifications.core'
     }
 
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
-
     lintOptions {
         abortOnError false
     }
