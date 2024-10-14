@@ -30,8 +30,20 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+
+        singleVariant('debug') {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
@@ -62,6 +74,13 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.findByName('release')
+
+                groupId = 'me.carda'
+                artifactId = 'AwnAndroidCore'
+                version = '0.10.0'
+            }
+            debug(MavenPublication) {
+                from components.findByName('debug')
 
                 groupId = 'me.carda'
                 artifactId = 'AwnAndroidCore'
