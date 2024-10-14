@@ -322,6 +322,8 @@ public class NotificationScheduler extends NotificationThread<Calendar> {
 //        WorkManager.getInstance(context).enqueue(notificationWork);
 //    }
 
+    // NOTE: The `EXACT_ALARM` permission must be explicitly declared by the client application in its Android manifest to use precise alarm features. This method assumes the permission is granted. If the permission is missing, this method will not schedule alarms with exact precision.
+    @SuppressLint("MissingPermission")
     private void scheduleNotificationWithAlarmManager(Context context, NotificationModel notificationModel, Calendar nextValidDate, PendingIntent pendingIntent) {
         if(notificationModel.schedule == null) return;
 
