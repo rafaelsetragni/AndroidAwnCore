@@ -13,10 +13,6 @@ android {
         namespace 'me.carda.awesome_notifications.core'
     }
 
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
-
     defaultConfig {
         minSdk 23
         compileSdk 34
@@ -36,6 +32,18 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+
+        singleVariant('debug') {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
@@ -66,6 +74,13 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.findByName('release')
+
+                groupId = 'me.carda'
+                artifactId = 'AwnAndroidCore'
+                version = '0.10.0'
+            }
+            debug(MavenPublication) {
+                from components.findByName('debug')
 
                 groupId = 'me.carda'
                 artifactId = 'AwnAndroidCore'
