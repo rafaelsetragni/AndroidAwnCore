@@ -65,7 +65,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.findByName('release')
+                from components.release
 
                 groupId = 'me.carda'
                 artifactId = 'AwnAndroidCore'
