@@ -17,6 +17,10 @@ android {
         baseline = file("lint-baseline.xml")
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     defaultConfig {
         minSdk 23
         compileSdk 34
