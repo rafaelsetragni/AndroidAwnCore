@@ -13,6 +13,10 @@ android {
         namespace 'me.carda.awesome_notifications.core'
     }
 
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
     defaultConfig {
         minSdk 23
         compileSdk 34
