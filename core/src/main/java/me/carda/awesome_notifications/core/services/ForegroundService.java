@@ -8,6 +8,7 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -116,6 +117,23 @@ public class ForegroundService extends Service {
             if(AwesomeNotifications.debug)
                 Logger.d(TAG, "Foreground service "+ notificationId +" id not found");
         }
+    }
+
+    // Android 14+ (API 34): Called when a shortService foreground service times out (~3 minutes).
+    // The service must call stopSelf() within a few seconds to avoid an ANR.
+    @Override
+    public void onTimeout(int startId) {
+        Logger.w(TAG, "Foreground service timed out (shortService, startId: " + startId + "), stopping...");
+        stopSelf(startId);
+    }
+
+    // Android 15+ (API 35): Called when dataSync or mediaProcessing foreground services
+    // exceed their 6-hour timeout. The service must call stopSelf() to avoid a RemoteServiceException.
+    @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        Logger.w(TAG, "Foreground service timed out (type: " + fgsType + ", startId: " + startId + "), stopping...");
+        stopSelf(startId);
     }
 
     @Override

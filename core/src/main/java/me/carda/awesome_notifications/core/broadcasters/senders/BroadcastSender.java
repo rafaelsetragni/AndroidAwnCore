@@ -5,9 +5,9 @@ import android.content.Intent;
 
 import androidx.core.app.JobIntentService;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import androidx.annotation.NonNull;
 
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import me.carda.awesome_notifications.core.AwesomeNotifications;
 import me.carda.awesome_notifications.core.Definitions;
