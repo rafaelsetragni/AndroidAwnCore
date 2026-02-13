@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import me.carda.awesome_notifications.core.AwesomeNotifications;
 import me.carda.awesome_notifications.core.completion_handlers.ActivityCompletionHandler;

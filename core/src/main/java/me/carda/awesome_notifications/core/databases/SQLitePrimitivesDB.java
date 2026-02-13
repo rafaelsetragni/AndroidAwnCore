@@ -10,7 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;

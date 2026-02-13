@@ -3,7 +3,7 @@ package me.carda.awesome_notifications.core.managers;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;

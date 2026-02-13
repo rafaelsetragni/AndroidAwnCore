@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import me.carda.awesome_notifications.core.exceptions.ExceptionCode;
 import me.carda.awesome_notifications.core.exceptions.ExceptionFactory;

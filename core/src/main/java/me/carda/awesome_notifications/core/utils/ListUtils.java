@@ -2,7 +2,7 @@ package me.carda.awesome_notifications.core.utils;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class ListUtils {
     public static boolean isNullOrEmpty(@Nullable List<?> list){

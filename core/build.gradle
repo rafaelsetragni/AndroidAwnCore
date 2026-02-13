@@ -4,10 +4,10 @@ plugins {
 }
 
 group 'me.carda.awesome_notifications.core'
-version '0.10.0'
+version '0.11.0'
 
 android {
-    compileSdkVersion = 34
+    compileSdkVersion = 36
 
     if (project.android.hasProperty('namespace')) {
         namespace 'me.carda.awesome_notifications.core'
@@ -15,8 +15,7 @@ android {
 
     defaultConfig {
         minSdk 23
-        compileSdk 34
-        targetSdk 34
+        targetSdk 36
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -48,25 +47,25 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.guava:guava:32.1.3-android'
+    implementation 'com.google.guava:guava:33.5.0-android'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
 
-    implementation 'androidx.annotation:annotation:1.8.2'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.media:media:1.7.0'
+    implementation 'androidx.annotation:annotation:1.9.1'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 
 //    implementation "net.zetetic:android-database-sqlcipher:4.5.3"
-    implementation "androidx.sqlite:sqlite:2.4.0"
+    implementation "androidx.sqlite:sqlite:2.6.2"
 
-    implementation "androidx.room:room-runtime:2.6.1"
-    implementation 'androidx.lifecycle:lifecycle-process:2.7.0'
-    annotationProcessor "androidx.room:room-compiler:2.6.1"
+    implementation "androidx.room:room-runtime:2.8.4"
+    implementation 'androidx.lifecycle:lifecycle-process:2.10.0'
+    annotationProcessor "androidx.room:room-compiler:2.8.4"
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 }
 
 afterEvaluate {
@@ -77,14 +76,14 @@ afterEvaluate {
 
                 groupId = 'me.carda'
                 artifactId = 'AwnAndroidCore'
-                version = '0.10.0'
+                version = '0.11.0'
             }
             debug(MavenPublication) {
                 from components.findByName('debug')
 
                 groupId = 'me.carda'
                 artifactId = 'AwnAndroidCore'
-                version = '0.10.0'
+                version = '0.11.0'
             }
         }
     }

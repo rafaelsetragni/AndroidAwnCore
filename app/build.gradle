@@ -8,8 +8,8 @@ android {
     defaultConfig {
         applicationId "me.carda.awesome_notifications.example"
         minSdkVersion 23
-        compileSdkVersion 34
-        targetSdkVersion 34
+        compileSdkVersion 36
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
 
