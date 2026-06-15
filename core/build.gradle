@@ -1,10 +1,10 @@
 plugins {
     id 'com.android.library'
-    id 'maven-publish'
+    id 'com.vanniktech.maven.publish' version '0.34.0'
 }
 
 group 'me.carda.awesome_notifications.core'
-version '0.10.0'
+version '0.12.0'
 
 android {
     compileSdkVersion = 34
@@ -33,18 +33,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    publishing {
-        singleVariant('release') {
-            withSourcesJar()
-            withJavadocJar()
-        }
-
-        singleVariant('debug') {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
 }
 
 dependencies {
@@ -69,23 +57,34 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.findByName('release')
+mavenPublishing {
+    // Central Portal (central.sonatype.com) is the default and only host in vanniktech 0.34.0.
+    publishToMavenCentral()
+    signAllPublications()
 
-                groupId = 'me.carda'
-                artifactId = 'AwnAndroidCore'
-                version = '0.10.0'
-            }
-            debug(MavenPublication) {
-                from components.findByName('debug')
+    coordinates('me.carda', 'AndroidAwnCore', '0.12.0')
 
-                groupId = 'me.carda'
-                artifactId = 'AwnAndroidCore'
-                version = '0.10.0'
+    pom {
+        name = 'Awesome Notifications Android Core'
+        description = 'Native Android core for the Awesome Notifications Flutter plugin.'
+        url = 'https://github.com/rafaelsetragni/AndroidAwnCore'
+        licenses {
+            license {
+                name = 'The Apache License, Version 2.0'
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
             }
+        }
+        developers {
+            developer {
+                id = 'rafaelsetragni'
+                name = 'Rafael Setragni'
+                url = 'https://github.com/rafaelsetragni/'
+            }
+        }
+        scm {
+            url = 'https://github.com/rafaelsetragni/AndroidAwnCore'
+            connection = 'scm:git:git://github.com/rafaelsetragni/AndroidAwnCore.git'
+            developerConnection = 'scm:git:ssh://git@github.com/rafaelsetragni/AndroidAwnCore.git'
         }
     }
 }
