@@ -1,6 +1,6 @@
 package me.carda.awesome_notifications.core.managers;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Calendar;
 import java.util.Locale;

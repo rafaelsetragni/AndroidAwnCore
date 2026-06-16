@@ -573,6 +573,12 @@ public class NotificationBuilder {
         }*/
     }
 
+    // Note: Starting from Android 15 (API 35), setInterruptionFilter() and setNotificationPolicy()
+    // no longer directly modify global DND state. Instead, they create/update an implicit
+    // AutomaticZenRule managed by the system. The functional behavior remains the same for
+    // enabling DND, but calling setInterruptionFilter(INTERRUPTION_FILTER_ALL) will no longer
+    // deactivate other apps' AutomaticZenRules.
+    // See: https://developer.android.com/about/versions/15/behavior-changes-15
     public void ensureCriticalAlert(Context context) throws AwesomeNotificationsException {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (PermissionManager.getInstance().isDndOverrideAllowed(context)) {

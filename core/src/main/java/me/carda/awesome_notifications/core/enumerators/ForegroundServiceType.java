@@ -1,6 +1,7 @@
 package me.carda.awesome_notifications.core.enumerators;
 
 import android.content.pm.ServiceInfo;
+import android.os.Build;
 
 import java.util.Locale;
 
@@ -28,7 +29,25 @@ public enum ForegroundServiceType implements SafeEnum {
     /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_CAMERA).
     camera("camera"),
     /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_MICROPHONE).
-    microphone("microphone");
+    microphone("microphone"),
+    /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_HEALTH).
+    /// Added in API 34.
+    health("health"),
+    /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING).
+    /// Added in API 34.
+    remoteMessaging("remoteMessaging"),
+    /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_SHORT_SERVICE).
+    /// Added in API 34. Has a ~3 minute timeout via Service.onTimeout(int).
+    shortService("shortService"),
+    /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_SPECIAL_USE).
+    /// Added in API 34. Requires FOREGROUND_SERVICE_SPECIAL_USE permission.
+    specialUse("specialUse"),
+    /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED).
+    /// Added in API 34. Reserved for system apps.
+    systemExempted("systemExempted"),
+    /// Corresponds to [`ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING`](https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING).
+    /// Added in API 35. Has a 6-hour timeout via Service.onTimeout(int, int).
+    mediaProcessing("mediaProcessing");
 
     private final String safeName;
     ForegroundServiceType(final String safeName){
@@ -46,6 +65,37 @@ public enum ForegroundServiceType implements SafeEnum {
             case mediaProjection:   return ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
             case microphone:        return ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
             case phoneCall:         return ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL;
+
+            case health:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    return ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH;
+                return ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
+            case remoteMessaging:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    return ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING;
+                return ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
+            case shortService:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    return ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE;
+                return ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
+            case specialUse:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    return ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+                return ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
+            case systemExempted:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    return ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED;
+                return ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
+            case mediaProcessing:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
+                    return ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING;
+                return ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
             case none:
             default:
                 return ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
@@ -82,15 +132,32 @@ public enum ForegroundServiceType implements SafeEnum {
         }
         if (SafeEnum.charMatches(reference, stringLength, 0, 'm')){
             if(SafeEnum.charMatches(reference, stringLength, 1, 'i')) return microphone;
-            if(SafeEnum.charMatches(reference, stringLength, 5, 'l')) return mediaPlayback;
-            if(SafeEnum.charMatches(reference, stringLength, 5, 'r')) return mediaProjection;
-            return manifest;
+            if(SafeEnum.charMatches(reference, stringLength, 1, 'a')) return manifest;
+            // media* types: mediaPlayback, mediaProjection, mediaProcessing
+            if(SafeEnum.charMatches(reference, stringLength, 6, 'l')) return mediaPlayback;
+            if(SafeEnum.charMatches(reference, stringLength, 6, 'r')){
+                if(SafeEnum.charMatches(reference, stringLength, 8, 'j')) return mediaProjection;
+                if(SafeEnum.charMatches(reference, stringLength, 8, 'c')) return mediaProcessing;
+            }
+            return none;
         }
         if (SafeEnum.charMatches(reference, stringLength, 0, 'd')){
             return dataSync;
         }
         if (SafeEnum.charMatches(reference, stringLength, 0, 'l')){
             return location;
+        }
+        if (SafeEnum.charMatches(reference, stringLength, 0, 'h')){
+            return health;
+        }
+        if (SafeEnum.charMatches(reference, stringLength, 0, 'r')){
+            if(SafeEnum.charMatches(reference, stringLength, 2, 'm')) return remoteMessaging;
+            return redeliveryIntent;
+        }
+        if (SafeEnum.charMatches(reference, stringLength, 0, 's')){
+            if(SafeEnum.charMatches(reference, stringLength, 1, 'h')) return shortService;
+            if(SafeEnum.charMatches(reference, stringLength, 1, 'p')) return specialUse;
+            if(SafeEnum.charMatches(reference, stringLength, 1, 'y')) return systemExempted;
         }
         return null;
     }
