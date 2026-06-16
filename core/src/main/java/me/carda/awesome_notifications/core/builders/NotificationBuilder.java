@@ -9,6 +9,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
@@ -404,9 +405,14 @@ public class NotificationBuilder {
                         .getPackageManager()
                         .queryIntentActivities(intent, 0);
 
-        if(resolveInfoList.size() > 0)
-            mainTargetClassName = resolveInfoList.get(0).activityInfo.name;
-
+        if(resolveInfoList.size() > 0){
+               ActivityInfo activityInfo = resolveInfoList.get(0).activityInfo;
+            if (activityInfo.targetActivity != null) {
+                mainTargetClassName = activityInfo.targetActivity;
+            } else {
+                mainTargetClassName = activityInfo.name;
+            }
+        }
         return this;
     }
 
