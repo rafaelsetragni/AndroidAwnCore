@@ -203,7 +203,6 @@ public class NotificationBuilder {
         updateTrackingExtras(notificationModel, channelModel, androidNotification.extras);
 
         setWakeUpScreen(context, notificationModel);
-        setCriticalAlert(context, channelModel, notificationModel);
         setCategoryFlags(context, notificationModel, androidNotification);
 
         setBadge(context, notificationModel, channelModel, builder);
@@ -573,25 +572,6 @@ public class NotificationBuilder {
         }*/
     }
 
-    // Note: Starting from Android 15 (API 35), setInterruptionFilter() and setNotificationPolicy()
-    // no longer directly modify global DND state. Instead, they create/update an implicit
-    // AutomaticZenRule managed by the system. The functional behavior remains the same for
-    // enabling DND, but calling setInterruptionFilter(INTERRUPTION_FILTER_ALL) will no longer
-    // deactivate other apps' AutomaticZenRules.
-    // See: https://developer.android.com/about/versions/15/behavior-changes-15
-    public void ensureCriticalAlert(Context context) throws AwesomeNotificationsException {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (PermissionManager.getInstance().isDndOverrideAllowed(context)) {
-            if (!permissionManager.isSpecifiedPermissionGloballyAllowed(context, NotificationPermission.CriticalAlert)){
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P /*Android 9*/) {
-                    NotificationManager.Policy policy = new NotificationManager.Policy(PRIORITY_CATEGORY_ALARMS, 0, 0);
-                    notificationManager.setNotificationPolicy(policy);
-                }
-            }
-        }
-    }
-
     private NotificationCompat.Builder getNotificationBuilderFromModel(
             Context context,
             Intent originalIntent,
@@ -698,13 +678,6 @@ public class NotificationBuilder {
         if (notificationModel.content.wakeUpScreen)
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
                 wakeUpScreen(context);
-    }
-
-    private void setCriticalAlert(Context context, NotificationChannelModel channel, NotificationModel notificationModel) throws AwesomeNotificationsException {
-        boolean requested = BooleanUtils.getInstance().getValue(channel.criticalAlerts, false)
-                || BooleanUtils.getInstance().getValue(notificationModel.content.criticalAlert, false);
-        if (requested)
-            ensureCriticalAlert(context);
     }
 
     private void setFullScreenIntent(Context context, PendingIntent pendingIntent, NotificationModel notificationModel, NotificationCompat.Builder builder) {
