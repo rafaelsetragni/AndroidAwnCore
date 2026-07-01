@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'me.carda.awesome_notifications.core'
-version '0.12.0'
+version '0.12.1'
 
 android {
     compileSdkVersion = 36
@@ -61,7 +61,7 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 
-    coordinates('me.carda', 'AndroidAwnCore', '0.12.0')
+    coordinates('me.carda', 'AndroidAwnCore', '0.12.1')
 
     pom {
         name = 'Awesome Notifications Android Core'
