@@ -203,7 +203,7 @@ public class NotificationBuilder {
         updateTrackingExtras(notificationModel, channelModel, androidNotification.extras);
 
         setWakeUpScreen(context, notificationModel);
-        setCriticalAlert(context, channelModel);
+        setCriticalAlert(context, channelModel, notificationModel);
         setCategoryFlags(context, notificationModel, androidNotification);
 
         setBadge(context, notificationModel, channelModel, builder);
@@ -700,8 +700,10 @@ public class NotificationBuilder {
                 wakeUpScreen(context);
     }
 
-    private void setCriticalAlert(Context context, NotificationChannelModel channel) throws AwesomeNotificationsException {
-        if (channel.criticalAlerts)
+    private void setCriticalAlert(Context context, NotificationChannelModel channel, NotificationModel notificationModel) throws AwesomeNotificationsException {
+        boolean requested = BooleanUtils.getInstance().getValue(channel.criticalAlerts, false)
+                || BooleanUtils.getInstance().getValue(notificationModel.content.criticalAlert, false);
+        if (requested)
             ensureCriticalAlert(context);
     }
 
