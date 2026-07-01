@@ -69,7 +69,6 @@ public class NotificationContentModel extends AbstractModel {
 
     public Boolean wakeUpScreen;
 
-    public Boolean criticalAlert;
 
     public Boolean fullScreenIntent;
 
@@ -178,7 +177,6 @@ public class NotificationContentModel extends AbstractModel {
         playSound             = getValueOrDefault(arguments, Definitions.NOTIFICATION_PLAY_SOUND, Boolean.class, true);
         customSound           = getValueOrDefault(arguments, Definitions.NOTIFICATION_CUSTOM_SOUND, String.class, null);
         wakeUpScreen          = getValueOrDefault(arguments, Definitions.NOTIFICATION_WAKE_UP_SCREEN, Boolean.class, false);
-        criticalAlert         = getValueOrDefault(arguments, Definitions.NOTIFICATION_CRITICAL_ALERT, Boolean.class, false);
         fullScreenIntent      = getValueOrDefault(arguments, Definitions.NOTIFICATION_FULL_SCREEN_INTENT, Boolean.class, false);
         showWhen              = getValueOrDefault(arguments, Definitions.NOTIFICATION_SHOW_WHEN, Boolean.class, true);
         locked                = getValueOrDefault(arguments, Definitions.NOTIFICATION_LOCKED, Boolean.class, false);
@@ -243,7 +241,6 @@ public class NotificationContentModel extends AbstractModel {
         putDataOnSerializedMap(Definitions.NOTIFICATION_SUMMARY, returnedObject, this.summary);
         putDataOnSerializedMap(Definitions.NOTIFICATION_SHOW_WHEN, returnedObject, this.showWhen);
         putDataOnSerializedMap(Definitions.NOTIFICATION_WAKE_UP_SCREEN, returnedObject, this.wakeUpScreen);
-        putDataOnSerializedMap(Definitions.NOTIFICATION_CRITICAL_ALERT, returnedObject, this.criticalAlert);
         putDataOnSerializedMap(Definitions.NOTIFICATION_FULL_SCREEN_INTENT, returnedObject, this.fullScreenIntent);
         putDataOnSerializedMap(Definitions.NOTIFICATION_ACTION_TYPE, returnedObject, this.actionType);
         putDataOnSerializedMap(Definitions.NOTIFICATION_LOCKED, returnedObject, this.locked);
