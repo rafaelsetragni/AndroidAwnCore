@@ -355,6 +355,9 @@ public class PermissionManager {
                 if(
                     permissionCode == null ||
                     Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                    // SCHEDULE_EXACT_ALARM is granted on its own settings page;
+                    // requestPermissions refuses it without showing anything.
+                    permissionEnum == NotificationPermission.PreciseAlarms ||
                     activity != null && activity.shouldShowRequestPermissionRationale(permissionCode)
                 ){
                     shouldShowRationalePage(
