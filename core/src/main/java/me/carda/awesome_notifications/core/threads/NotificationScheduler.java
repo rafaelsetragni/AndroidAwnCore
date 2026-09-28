@@ -267,7 +267,9 @@ public class NotificationScheduler extends NotificationThread<Calendar> {
             @Nullable AwesomeNotificationsException exception
     ) throws AwesomeNotificationsException {
         if(threadCompletionHandler != null)
-            threadCompletionHandler.handle(exception != null, exception);
+            // onPostExecute returns the next valid date only once the schedule
+            // is saved and set on AlarmManager, as NotificationSender does.
+            threadCompletionHandler.handle(calendar != null, exception);
     }
 
     /// AsyncTask METHODS END *********************************
